@@ -1,98 +1,40 @@
-# This Python file uses the following encoding: utf-8
+from setuptools import find_packages, setup
 
-from setuptools import setup
-from os import path
+import os
 
-# io.open is needed for projects that support Python 2.7
-# It ensures open() defaults to text mode with universal newlines,
-# and accepts an argument to specify the text encoding
-# Python 3 only projects can skip this import and use built-in open()
-from io import open as io_open
-import re
+homepage = 'https://github.com/InstaPy2/InstaPy2'
 
-
-summary = "Tool for automated Instagram interactions"
-project_homepage = "https://github.com/InstaPy/InstaPy"
-here = path.abspath(path.dirname(__file__))
-
-
-def readall(*args):
-    with io_open(path.join(here, *args), encoding="utf-8") as fp:
-        return fp.read()
-
-
-with open("requirements.txt") as f:
-    dependencies = f.read().splitlines()
-
-documentation = readall("README.md")
-metadata = dict(
-    re.findall(r"""__([a-z]+)__ = "([^"]+)""", readall("instapy", "__init__.py"))
-)
+def read(file: str) -> str:
+    return open(os.path.join(os.path.dirname(__file__), file)).read()
 
 setup(
-    name="instapy",
-    version=metadata["version"],
-    description=summary,
-    long_description=documentation,
-    long_description_content_type="text/markdown",
-    author="Tim Großmann",
-    author_email="contact.timgrossmann@gmail.com",
-    maintainer="InstaPy Community at Github",
-    license="GPLv3",
-    url=project_homepage,
-    download_url=(project_homepage + "/archive/master.zip"),
-    project_urls={
-        "How Tos": (project_homepage + "/tree/master/docs"),
-        "Examples": (project_homepage + "/tree/master/quickstart_templates"),
-        "Bug Reports": (project_homepage + "/issues"),
-        "Funding": "https://www.paypal.me/supportInstaPy",
-        "Say Thanks!": "http://saythanks.io/to/uluQulu",
-        "Source": (project_homepage + "/tree/master/instapy"),
-    },
-    packages=["instapy"],
-    # include_package_data=True,  # <- packs every data file in the package
-    package_data={  # we need only the files below:
-        "instapy": [
-            "icons/Windows/*.ico",
-            "icons/Linux/*.png",
-            "icons/Mac/*.icns",
-            "firefox_extension/*",
-            "plugins/*",
-        ]
-    },
-    keywords=(
-        "instapy python instagram automation \
-         marketing promotion bot selenium"
-    ),
+    author='Antique',
+    author_email='official.antique@gmail.com',
     classifiers=[
-        "Development Status :: 4 - Beta",
-        "Environment :: Console",
-        "Environment :: Win32 (MS Windows)",
-        "Environment :: MacOS X",
-        "Environment :: Web Environment",
-        "Intended Audience :: End Users/Desktop",
-        "Intended Audience :: Developers",
-        "Operating System :: Microsoft :: Windows",
-        "Operating System :: POSIX :: Linux",
-        "Operating System :: MacOS :: MacOS X",
-        "Operating System :: Unix",
-        "Programming Language :: Python",
-        "Programming Language :: JavaScript",
-        "Programming Language :: SQL",
-        "Topic :: Utilities",
-        "Topic :: Software Development :: Build Tools",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Natural Language :: English",
+        'Development Status :: 4 - Beta',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Intended Audience :: End Users/Desktop',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Natural Language :: English',
+        'Operating System :: MacOS',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX',
+        'Programming Language :: Python',
+        'Topic :: Software Development',
+        'Topic :: Utilities'
     ],
-    install_requires=dependencies,
-    extras_require={"test": ["tox", "virtualenv", "tox-venv"]},
-    python_requires=">=3.5",
-    platforms=["win32", "linux", "linux2", "darwin"],
-    zip_safe=False,
-    entry_points={"console_scripts": []},
+    description='Automation script for Instagram that farms comments, follows and likes.',
+    install_requires=['instagrapi', 'Pillow', 'python-dotenv'],
+    keywords=['automation', 'bot', 'insta', 'instagram', 'instagrapi', 'instapy', 'instapy2'],
+    license_file='LICENSE',
+    long_description=read(file='README.md'),
+    long_description_content_type='text/markdown',
+    name='instapy2',
+    package_dir={
+        '' : 'src'
+    },
+    packages=find_packages(where='src'),
+    url=homepage,
+    version='0.0.23'
 )
