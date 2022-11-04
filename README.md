@@ -29,7 +29,7 @@ Automation script for Instagram that *farms* comments, follows and likes.
 
 ## Using 2FA
 ```py
-    from instapy2 import InstaPy2
+from instapy2 import InstaPy2
 
-    session = InstaPy2(username='<USERNAME_HERE>', password='<PASSWORD_HERE>', verification_code='<2FA_CODE_HERE>') # Tested and working with Apple Verification Code
+session = InstaPy2(username='<USERNAME_HERE>', password='<PASSWORD_HERE>', verification_code='<2FA_CODE_HERE>') # Tested and working with Apple Verification Code
 ```
