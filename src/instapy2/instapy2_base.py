@@ -37,38 +37,42 @@ class InstaPy2Base:
     def medias_location(self, amount: int, location: int, randomize_media: bool, skip_top: bool) -> List[Media]:
         medias = []
         if skip_top:
-            while len(medias) < amount:
-                medias += [media for media in self.session.location_medias_recent(location_pk=location, amount=amount * 2) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
+            medias += [media for media in self.session.location_medias_recent(location_pk=location, amount=amount) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
         else:
             medias += [media for media in self.session.location_medias_top(location_pk=location) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
-            while len(medias) < amount:
-                medias += [media for media in self.session.location_medias_recent(location_pk=location, amount=(amount * 2) - len(medias)) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
+            medias += [media for media in self.session.location_medias_recent(location_pk=location, amount=amount - len(medias)) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
 
         if randomize_media:
             random.shuffle(x=medias)
 
-        return medias[:amount]
+        limited = medias[:amount]
+
+        print(f'[INFO]: Found {len(limited)} of {amount} valid media with the current configuration.')
+        return limited
 
     def medias_tag(self, amount: int, tag: str, randomize_media: bool, skip_top: bool) -> List[Media]:
         medias = []
         if skip_top:
-            while len(medias) < amount:
-                medias += [media for media in self.session.hashtag_medias_recent(name=tag, amount=amount * 2) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
+            medias += [media for media in self.session.hashtag_medias_recent(name=tag, amount=amount) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
         else:
             medias += [media for media in self.session.hashtag_medias_top(name=tag) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
-            while len(medias) < amount:
-                medias += [media for media in self.session.hashtag_medias_recent(name=tag, amount=(amount * 2) - len(medias)) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
+            medias += [media for media in self.session.hashtag_medias_recent(name=tag, amount=amount - len(medias)) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
 
         if randomize_media:
             random.shuffle(x=medias)
 
-        return medias[:amount]
+        limited = medias[:amount]
+
+        print(f'[INFO]: Found {len(limited)} of {amount} valid media with the current configuration.')
+        return limited
     
     def medias_username(self, amount: int, username: str, randomize_media: bool) -> List[Media]:
         try:
             medias = self.session.user_medias(user_id=self.session.user_id_from_username(username=username), amount=amount)
+            
             if randomize_media:
                 random.shuffle(x=medias)
+            
             return medias[:amount]
         except Exception as error:
             print(f'Failed to get media for user: {username}. {error}.')
