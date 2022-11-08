@@ -1,4 +1,4 @@
-from . import UtilityBase
+from .utility_base import UtilityBase
 
 from instagrapi import Client
 

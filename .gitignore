@@ -1,1 +1,5 @@
 .vs
+build
+files
+
+src/instapy2.egg-info
