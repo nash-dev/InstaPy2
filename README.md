@@ -23,10 +23,7 @@ Automation script for Instagram that *farms* comments, follows and likes.
 <br/>
 
 # 2FA
-> Instagrapi will fail when using 2FA. I've made a PR to fix that issue. Please wait until then to use 2FA.
-
-2FA support has been introduced in `2fa-features` however, use it at your own risk.
-
+> Instagrapi has now been fixed as per my [PR](https://github.com/adw0rd/instagrapi/pull/961).
 ## Using 2FA
 ```py
 from instapy2 import InstaPy2
