@@ -236,7 +236,7 @@ class InstaPy2(InstaPy2Base):
                     random.shuffle(x=tags)
 
                 for tag in tags:
-                    medias = self.medias_tag(amount=amount, tag=tag, randomize_media=randomize_media, skip_top=skip_top)
+                    medias = self.__medias_tag(amount=amount, tag=tag, randomize_media=randomize_media, skip_top=skip_top)
 
                     for media in medias:
                         if self.configuration.media.validated_for_interaction(media=media):
