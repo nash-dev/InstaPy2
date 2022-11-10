@@ -16,7 +16,7 @@ class InstaPy2(InstaPy2Base):
         match type:
             case CommentType.Locations:
                 for location in iterable:
-                    medias = self.medias_location(amount=amount, location=location, randomize_media=randomize_media, skip_top=skip_top)
+                    medias = self.__medias_location(amount=amount, location=location, randomize_media=randomize_media, skip_top=skip_top)
 
                     for media in medias:
                         if self.configuration.media.validated_for_interaction(media=media):
@@ -41,7 +41,7 @@ class InstaPy2(InstaPy2Base):
         match type:
             case FollowType.Commenters:
                 for username in iterable:
-                    medias = self.medias_username(amount=amount, username=username, randomize_media=randomize_media)
+                    medias = self.__medias_username(amount=amount, username=username, randomize_media=randomize_media)
 
                     usernames = []
                     found_amount = False
@@ -61,7 +61,7 @@ class InstaPy2(InstaPy2Base):
 
                     self.follow(amount=amount, iterable=usernames, type=FollowType.Usernames)
             case FollowType.Likers:
-                medias = self.medias_username(amount=amount, username=self.session.username, randomize_media=randomize_media)
+                medias = self.__medias_username(amount=amount, username=self.session.username, randomize_media=randomize_media)
 
                 usernames = []
                 found_amount = False
@@ -82,7 +82,7 @@ class InstaPy2(InstaPy2Base):
                 self.follow(amount=amount, iterable=usernames, type=FollowType.Usernames)
             case FollowType.Locations:
                 for location in iterable:
-                    medias = self.medias_location(amount=amount, location=location, randomize_media=randomize_media, skip_top=skip_top)
+                    medias = self.__medias_location(amount=amount, location=location, randomize_media=randomize_media, skip_top=skip_top)
 
                     usernames = []
                     found_amount = False
@@ -109,7 +109,7 @@ class InstaPy2(InstaPy2Base):
                 usernames = []
                 found_amount = False
                 for tag in tags:
-                    medias = self.medias_tag(amount=amount, tag=tag, randomize_media=randomize_media, randomize_tags=randomize_tags)
+                    medias = self.__medias_tag(amount=amount, tag=tag, randomize_media=randomize_media, randomize_tags=randomize_tags)
 
                     for media in medias:
                         if self.configuration.media.validated_for_interaction(media=media):
@@ -188,7 +188,7 @@ class InstaPy2(InstaPy2Base):
                     iterable = [iterable]
 
                 for username in iterable:
-                    medias = self.medias_username(amount=amount, username=username)
+                    medias = self.__medias_username(amount=amount, username=username)
 
                     for media in medias:
                         if randomize_likes and random.choice([True, False]):
@@ -214,7 +214,7 @@ class InstaPy2(InstaPy2Base):
 
             case LikeType.Locations:
                 for location in iterable:
-                    medias = self.medias_location(amount=amount, location=location, randomize_media=randomize_media, skip_top=skip_top)
+                    medias = self.__medias_location(amount=amount, location=location, randomize_media=randomize_media, skip_top=skip_top)
 
                     for media in medias:
                         if self.configuration.media.validated_for_interaction(media=media):
@@ -261,7 +261,7 @@ class InstaPy2(InstaPy2Base):
                     iterable = [iterable]
 
                 for username in iterable:
-                    medias = self.medias_username(amount=amount, username=username, randomize_media=randomize_media)
+                    medias = self.__medias_username(amount=amount, username=username, randomize_media=randomize_media)
 
                     for media in medias:
                         if self.configuration.media.validated_for_interaction(media=media):
@@ -294,7 +294,7 @@ class InstaPy2(InstaPy2Base):
             print(f'[INFO]: {username}')
 
             if username not in self.configuration.people.friends_to_skip:
-                medias = self.medias_username(amount=amount, username=username, randomize_media=randomize_media)
+                medias = self.__medias_username(amount=amount, username=username, randomize_media=randomize_media)
 
                 following = random.randint(0, 100) <= self.configuration.follows.percentage
 
