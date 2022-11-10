@@ -22,11 +22,8 @@ Automation script for Instagram that *farms* comments, follows and likes.
 
 <br/>
 
-# 2FA
-> Instagrapi has now been fixed as per my [PR](https://github.com/adw0rd/instagrapi/pull/961).
-## Using 2FA
-```py
-from instapy2 import InstaPy2
+# Documentation
+Read the documentation for InstaPy2 [here](https://official-antique.gitbook.io/instapy2).
 
-session = InstaPy2(username='<USERNAME_HERE>', password='<PASSWORD_HERE>', verification_code='<2FA_CODE_HERE>') # Tested and working with Apple Verification Code
-```
+# 2FA
+Instagrapi has now been fixed as per my [PR](https://github.com/adw0rd/instagrapi/pull/961).
