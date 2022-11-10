@@ -5,7 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [WIP]
-## [0.0.23] - 2022-11-04
+## [0.0.25] - 2022-11-11
+### Fixed
+- Fixed instapy2 has no object medias_tag error.
+
+## [Released]
+## [0.0.24] - 2022-11-04
 ### Added
 - Added `comment_locations`.
     - > Please read *Changed* for the changes to `comment_locations`.
@@ -24,7 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         - This may mean the user has a private account and the follow is requested.
         - This will be improved later.
 
-## [Released]
 ## [0.0.22] - 2022-10-24
 ### Added
 - Added `follow_commenters`, `follow_likers` and `like_locations`.
