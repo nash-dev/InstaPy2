@@ -133,6 +133,7 @@ class InstaPy2(InstaPy2Base):
                     user_id = self.session.user_id_from_username(username=username)
                     following = self.session.user_friendship_v1(user_id=user_id).following
 
+                    did_follow = False
                     if not following:
                         _, did_follow = self.configuration.follows.follow(user=user_id)
 
@@ -203,6 +204,7 @@ class InstaPy2(InstaPy2Base):
                                     if self.configuration.comments.enabled and commenting:
                                         _, _ = self.configuration.comments.comment(media=media, text=random.choice(seq=self.configuration.comments.comments))
 
+                                    did_follow = False
                                     if self.configuration.follows.enabled and following:
                                         _, did_follow = self.configuration.follows.follow(user=media.user)
 
@@ -226,33 +228,34 @@ class InstaPy2(InstaPy2Base):
                                     _, _ = self.configuration.comments.comment(media=media, text=random.choice(seq=self.configuration.comments.comments))
 
                                 if self.configuration.follows.enabled and following:
-                                    _, did_follow = self.configuration.follows.follow(user=media.user)
+                                    _, _ = self.configuration.follows.follow(user=media.user)
             case LikeType.Tags:
                 tags = [tag.strip() for tag in iterable]
 
                 if randomize_tags:
                     random.shuffle(x=tags)
 
-                    for tag in tags:
-                        medias = self.__medias_tag(amount=amount, tag=tag, randomize_media=randomize_media, skip_top=skip_top)
+                for tag in tags:
+                    medias = self.medias_tag(amount=amount, tag=tag, randomize_media=randomize_media, skip_top=skip_top)
 
-                        for media in medias:
-                            if self.configuration.media.validated_for_interaction(media=media):
-                                liked = self.configuration.likes.like(media=media)
+                    for media in medias:
+                        if self.configuration.media.validated_for_interaction(media=media):
+                            liked = self.configuration.likes.like(media=media)
 
-                                if self.configuration.comments.enabled_for_liked_media or liked:
-                                    commenting = random.randint(a=0, b=100) <= self.configuration.comments.percentage
-                                    following = random.randint(a=0, b=100) <= self.configuration.follows.percentage
+                            if self.configuration.comments.enabled_for_liked_media or liked:
+                                commenting = random.randint(a=0, b=100) <= self.configuration.comments.percentage
+                                following = random.randint(a=0, b=100) <= self.configuration.follows.percentage
 
-                                    if self.configuration.comments.enabled and commenting:
-                                        _, _ = self.configuration.comments.comment(media=media, text=random.choice(seq=self.configuration.comments.comments))
+                                if self.configuration.comments.enabled and commenting:
+                                    _, _ = self.configuration.comments.comment(media=media, text=random.choice(seq=self.configuration.comments.comments))
 
-                                    if self.configuration.follows.enabled and following:
-                                        _, did_follow = self.configuration.follows.follow(user=media.user)
+                                did_follow = False
+                                if self.configuration.follows.enabled and following:
+                                    _, did_follow = self.configuration.follows.follow(user=media.user)
 
-                                    interacting = random.randint(a=0, b=100) <= self.configuration.interactions.percentage
-                                    if did_follow and self.configuration.interactions.enabled and interacting:
-                                        self.interact_users(amount=self.configuration.interactions.amount, usernames=media.user.username, randomize_media=self.configuration.interactions.randomize)
+                                interacting = random.randint(a=0, b=100) <= self.configuration.interactions.percentage
+                                if did_follow and self.configuration.interactions.enabled and interacting:
+                                    self.interact_users(amount=self.configuration.interactions.amount, usernames=media.user.username, randomize_media=self.configuration.interactions.randomize)
             case LikeType.Users:
                 if not isinstance(iterable, list):
                     iterable = [iterable]
@@ -272,7 +275,7 @@ class InstaPy2(InstaPy2Base):
                                     _, _ = self.configuration.comments.comment(media=media, text=random.choice(seq=self.configuration.comments.comments))
 
                                 if self.configuration.follows.enabled and following:
-                                    _, did_follow = self.configuration.follows.follow(user=media.user)
+                                    _, _ = self.configuration.follows.follow(user=media.user)
             case _:
                 print('[ERROR]: No `type` was provided.')
 
