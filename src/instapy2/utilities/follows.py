@@ -29,11 +29,9 @@ class FollowsUtility(UtilityBase):
         except Exception as error:
             return (error, False)
         
-    def unfollow(self, user_id: str, username: str) -> bool:
+    def unfollow(self, user_id: str, username: str) -> Tuple[Exception, bool]:
         try:
             unfollowed = self.session.user_unfollow(user_id=user_id)
-            print(f'[INFO]: Successfully unfollowed user: {username}' if unfollowed else f'[ERROR]: Failed to unfollow user: {username}.')
-            return unfollowed
+            return None, unfollowed
         except Exception as error:
-            print(f'[ERROR]: {error}.')
-            return False
+            return (error, False)

@@ -5,4 +5,4 @@ class FollowType(Enum):
     Likers = 1
     Locations = 2
     Tags = 3
-    Usernames = 4
+    Users = 4
