@@ -27,7 +27,7 @@ setup(
     description='Automation script for Instagram that farms comments, follows and likes.',
     install_requires=['instagrapi', 'Pillow', 'python-dotenv'],
     keywords=['automation', 'bot', 'insta', 'instagram', 'instagrapi', 'instapy', 'instapy2'],
-    license_file='LICENSE',
+    license_file='LICENSE.md',
     long_description=read(file='README.md'),
     long_description_content_type='text/markdown',
     name='instapy2',
