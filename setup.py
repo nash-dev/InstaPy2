@@ -25,8 +25,20 @@ setup(
         'Topic :: Utilities'
     ],
     description='Automation script for Instagram that farms comments, follows and likes.',
-    install_requires=['instagrapi', 'Pillow', 'python-dotenv'],
-    keywords=['automation', 'bot', 'insta', 'instagram', 'instagrapi', 'instapy', 'instapy2'],
+    install_requires=[
+        'instagrapi',
+        'Pillow',
+        'python-dotenv'
+    ],
+    keywords=[
+        'automation',
+        'bot',
+        'insta',
+        'instagram',
+        'instagrapi',
+        'instapy',
+        'instapy2'
+    ],
     license_file='LICENSE.md',
     long_description=read(file='README.md'),
     long_description_content_type='text/markdown',
@@ -36,5 +48,5 @@ setup(
     },
     packages=find_packages(where='src'),
     url=homepage,
-    version='0.0.26'
+    version='0.0.27'
 )
