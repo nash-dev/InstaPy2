@@ -21,7 +21,7 @@ class InstaPy2Base:
         self.configuration = Configuration(session=self.session)
 
 
-    def __medias_location(self, amount: int, location: int, randomize_media: bool, skip_top: bool) -> List[Media]:
+    def medias_location(self, amount: int, location: int, randomize_media: bool, skip_top: bool) -> List[Media]:
         medias = []
         if skip_top:
             medias += [media for media in self.session.location_medias_recent(location_pk=location, amount=amount) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
@@ -38,7 +38,7 @@ class InstaPy2Base:
         return limited
 
 
-    def __medias_tag(self, amount: int, tag: str, randomize_media: bool, skip_top: bool) -> List[Media]:
+    def medias_tag(self, amount: int, tag: str, randomize_media: bool, skip_top: bool) -> List[Media]:
         medias = []
         if skip_top:
             medias += [media for media in self.session.hashtag_medias_recent(name=tag, amount=amount) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
@@ -55,7 +55,7 @@ class InstaPy2Base:
         return limited
     
 
-    def __medias_username(self, amount: int, username: str, randomize_media: bool) -> List[Media]:
+    def medias_username(self, amount: int, username: str, randomize_media: bool) -> List[Media]:
         try:
             medias = self.session.user_medias(user_id=self.session.user_id_from_username(username=username), amount=amount)
             
