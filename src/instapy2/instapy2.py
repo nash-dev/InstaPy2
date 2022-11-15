@@ -113,7 +113,7 @@ class InstaPy2(InstaPy2Base):
                 usernames = []
                 found_amount = False
                 for tag in tags:
-                    medias = self.configuration.media.medias_tag(amount=amount, tag=tag, randomize_media=randomize_media, randomize_tags=randomize_tags)
+                    medias = self.configuration.media.medias_tag(amount=amount, tag=tag, randomize_media=randomize_media)
 
                     for media in medias:
                         if self.configuration.media.validated_for_interaction(media=media):
