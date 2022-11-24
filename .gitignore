@@ -1,3 +1,5 @@
 .vs
 
+build
+src/instapy2.egg-info
 test
