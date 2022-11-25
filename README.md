@@ -22,8 +22,33 @@ Automation script for Instagram that *farms* comments, follows and likes.
 
 <br/>
 
-# Documentation
-Read the documentation for InstaPy2 [here](https://official-antique.gitbook.io/instapy2).
+## [Documentation](https://github.com/InstaPy2/InstaPy2/tree/main/documentation)
+Find all of the documentation in the link above.
 
-# 2FA
-Instagrapi has now been fixed as per my [PR](https://github.com/adw0rd/instagrapi/pull/961).
+## [Examples](https://github.com/InstaPy2/InstaPy2/tree/main/examples)
+Find a variety of examples in the link above.
+
+## Latest Changes
+> 25th November 2022
+
+- Added ability to direct message users.
+    - See [CHANGELOG.md](CHANGELOG.md) for more information.
+
+## Previous Changes
+> 25th November 2022
+
+No changes have been made.
+
+## Social Media
+<span>
+  <img src="https://img.shields.io/static/v1?label=Discord&message=Antique%239837&color=blueviolet"/>
+  <a href="https://reddit.com/u/antique_codes">
+    <img src="https://img.shields.io/static/v1?label=Reddit&message=%40antique_codes&color=red"/>
+  </a>
+  <a href="https://twitch.tv/official_antique">
+    <img src="https://img.shields.io/static/v1?label=Twitch&message=official_antique&color=blueviolet"/>
+  </a>
+  <a href="https://twitter.com/antique_codes">
+    <img src="https://img.shields.io/static/v1?label=Twitter&message=%40antique_codes&color=blue"/>
+  </a>
+</span>

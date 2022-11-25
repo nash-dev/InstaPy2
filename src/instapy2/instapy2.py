@@ -136,10 +136,14 @@ class InstaPy2(InstaPy2Base):
                 for username in iterable:
                     user_id = self.session.user_id_from_username(username=username)
                     following = self.session.user_friendship_v1(user_id=user_id).following
+                    messaging = random.randint(a=0, b=100) <= self.configuration.messages.percentage
 
                     did_follow = False
                     if not following:
                         _, did_follow = self.configuration.follows.follow(user=user_id)
+
+                    if self.configuration.messages.enabled and messaging:
+                        _, _ = self.configuration.messages.message(user=media.user, text=random.choice(seq=self.configuration.messages.messages))
 
                     if did_follow:
                         followed_count += 1
@@ -252,12 +256,16 @@ class InstaPy2(InstaPy2Base):
                             if self.configuration.comments.enabled_for_liked_media or liked:
                                 commenting = random.randint(a=0, b=100) <= self.configuration.comments.percentage
                                 following = random.randint(a=0, b=100) <= self.configuration.follows.percentage
+                                messaging = random.randint(a=0, b=100) <= self.configuration.messages.percentage
 
                                 if self.configuration.comments.enabled and commenting:
                                     _, _ = self.configuration.comments.comment(media=media, text=random.choice(seq=self.configuration.comments.comments))
 
                                 if self.configuration.follows.enabled and following:
                                     _, _ = self.configuration.follows.follow(user=media.user)
+
+                                if self.configuration.messages.enabled and messaging:
+                                    _, _ = self.configuration.messages.message(user=media.user, text=random.choice(seq=self.configuration.messages.messages))
             case _:
                 print('[ERROR]: No `type` was provided.')
 

@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [WIP]
+## [0.0.27] - 2022-11-25
+### Added
+- Added ability to direct message users.
+    - Direct messaging is only available through `follow(..., type=FollowType.Users)` and `like(..., type=LikeType.Users)`.
+
+## [Released]
 ## [0.0.26] - 2022-11-11
 ### Added
 - Added basic implementation to post media.
@@ -16,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed support for challenge handling.
     - This may not be required through testing.
 
-## [Released]
 ## [0.0.24] - 2022-11-04
 ### Added
 - Added `comment_locations`.
