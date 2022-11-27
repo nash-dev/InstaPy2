@@ -20,8 +20,6 @@ Automation script for Instagram that *farms* comments, follows and likes.
     </a>
 </span>
 
-<br/>
-
 ## [Documentation](https://github.com/InstaPy2/InstaPy2/tree/main/documentation)
 Find all of the documentation in the link above.
 
