@@ -24,12 +24,16 @@ class InstaPy2(InstaPy2Base):
                         if self.configuration.media.validated_for_interaction(media=media):
                             commenting = random.randint(a=0, b=100) <= self.configuration.comments.percentage
                             following = random.randint(a=0, b=100) <= self.configuration.follows.percentage
+                            messaging = random.randint(a=0, b=100) <= self.configuration.messages.percentage
 
                             if self.configuration.comments.enabled and commenting:
                                 _, _ = self.configuration.comments.comment(media=media, text=random.choice(seq=self.configuration.comments.comments))
 
                             if self.configuration.follows.enabled and following:
-                                self.follow(iterable=media.user.username, type=FollowType.Users)
+                                self.follow(iterable=[media.user.username], type=FollowType.Users)
+
+                            if self.configuration.messages.enabled and messaging:
+                                _, _ = self.configuration.messages.message(user=media.user, text=random.choice(seq=self.configuration.messages.messages))
             case _:
                 print('[ERROR]: No `type` was provided.')
 
