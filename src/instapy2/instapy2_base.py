@@ -41,15 +41,3 @@ class InstaPy2Base:
 
     def set_proxies(self, proxies: List[Dict[str, str]] = None):
         self.proxies = proxies
-
-"""
-
-[
-    {
-        'url' : 'https://address:port',
-        'username' : 'abc',
-        'password' : 'def'
-    }
-]
-
-"""
