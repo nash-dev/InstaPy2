@@ -9,7 +9,7 @@ import urllib3
 class InstaPy2Base:
     def login(self, username: str = None, password: str = None, verification_code: str = ''):
         def proxy() -> Union[None, str]:
-            if self.proxies is None:
+            if hasattr(self, 'proxies'):
                 return None
             else:
                 for proxy in self.proxies:
