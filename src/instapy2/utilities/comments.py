@@ -1,5 +1,6 @@
 from .utility_base import UtilityBase
 
+from emoji import emojize
 from instagrapi import Client
 from instagrapi.types import Media
 
@@ -51,7 +52,7 @@ class CommentsUtility(UtilityBase):
 
     def comment(self, media: Media, text: str) -> Tuple[Exception, bool]:
         try:
-            commented = self.session.media_comment(media_id=media.id, text=text.format(media.user.username))
+            commented = self.session.media_comment(media_id=media.id, text=emojize(string=text).format(media.user.username))
             return (None, commented is not None)
         except Exception as error:
             return (error, False)

@@ -26,6 +26,7 @@ setup(
     ],
     description='Automation script for Instagram that farms comments, follows and likes.',
     install_requires=[
+        'emoji',
         'instagrapi',
         'Pillow',
         'python-dotenv'
@@ -48,5 +49,5 @@ setup(
     },
     packages=find_packages(where='src'),
     url=homepage,
-    version='0.0.27'
+    version='0.0.28'
 )

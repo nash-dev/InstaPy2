@@ -363,24 +363,42 @@ class InstaPy2(InstaPy2Base):
                 if path is not None and caption is not None:
                     self.session.photo_upload(path=path, caption=caption, usertags=usertags)
             case PostType.Pexels:
-                print('[INFO]: Pexels is not currently supported.')
+                caption = kwargs['caption'] if 'caption' in kwargs.keys() else None
+                query = kwargs['query'] if 'query' in kwargs.keys() else None
+
+                if hasattr(self.configuration, 'pexels_api_key') and caption is not None:
+                    response = get(url=f'https://api.pexels.com/v1/search?query={query}', headers={
+                        'Authorization' : self.configuration.pexels_api_key
+                    })
+
+                    photo = choice(seq=response.json()['photos'])['src']['medium']
+                    if photo is not None:
+                        pexels_path = f'{getcwd()}{sep}pexels.png'
+                        with open(file=pexels_path, mode='wb') as file:
+                            file.write(get(url=photo).content)
+
+                        self.session.photo_upload(path=pexels_path, caption=caption)
+                        remove(path=pexels_path)
             case PostType.Unsplash:
-                if hasattr(self.configuration, 'unsplash_api_key'):
-                    caption = kwargs['caption'] if 'caption' in kwargs.keys() else None
-                    query = kwargs['query'] if 'query' in kwargs.keys() else None
-                    usertags = kwargs['usertags'] if 'usertags' in kwargs.keys() else []
+                caption = kwargs['caption'] if 'caption' in kwargs.keys() else None
+                query = kwargs['query'] if 'query' in kwargs.keys() else None
 
-                    if query is not None and caption is not None:
-                        response = get(url=f'https://api.unsplash.com/search/photos?page=1&query={query}&client_id={self.configuration.unsplash_api_key}')
+                if hasattr(self.configuration, 'unsplash_api_key') and caption is not None:
+                    endpoint = f'https://api.unsplash.com/search/photos?query={query}&client_id={self.configuration.unsplash_api_key}' if query is not None else f'https://api.unsplash.com/photos/random?client_id={self.configuration.unsplash_api_key}'
 
-                        result = choice(seq=response.json()['results'])
+                    response = get(url=endpoint)
+                    if query is None:
+                        print(response.json())
+                        photo = response.json()['urls']['regular']
+                    else:
+                        photo = choice(seq=response.json()['results'])['urls']['regular']
+                    
+                    if photo is not None:
+                        unsplash_path = f'{getcwd()}{sep}unsplash.png'
+                        with open(file=unsplash_path, mode='wb') as file:
+                            file.write(get(url=photo).content)
 
-                        if result is not None:
-                            unsplash_path = f'{getcwd()}{sep}unsplash.png'
-                            with open(file=unsplash_path, mode='wb') as file:
-                                file.write(get(url=result['urls']['regular']).content)
-
-                            self.session.photo_upload(path=unsplash_path, caption=caption, usertags=usertags)
-                            remove(path=unsplash_path)
+                        self.session.photo_upload(path=unsplash_path, caption=caption)
+                        remove(path=unsplash_path)
             case _:
                 print('[ERROR]: No `type` was provided.')

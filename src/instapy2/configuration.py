@@ -22,5 +22,8 @@ class Configuration:
         self.location = LocationHelper(session=session)
         self.people = PeopleHelper(session=session)
 
+    def set_pexels_api_key(self, key: str):
+        self.pexels_api_key = key
+
     def set_unsplash_api_key(self, key: str):
         self.unsplash_api_key = key
