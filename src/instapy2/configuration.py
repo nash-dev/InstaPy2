@@ -21,3 +21,6 @@ class Configuration:
 
         self.location = LocationHelper(session=session)
         self.people = PeopleHelper(session=session)
+
+    def set_unsplash_api_key(self, key: str):
+        self.unsplash_api_key = key
