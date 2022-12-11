@@ -9,22 +9,22 @@ import urllib3
 class InstaPy2Base:
     def login(self, username: str = None, password: str = None, verification_code: str = ''):
         def proxy() -> Union[None, str]:
-            if hasattr(self, 'proxies'):
-                return None
-            else:
-                for proxy in self.proxies:
-                    try:
-                        url = proxy['url'] or ''
-                        username = proxy['username'] or ''
-                        password = proxy['password'] or ''
+            for proxy in self.proxies:
+                try:
+                    url = proxy['url'] or ''
+                    username = proxy['username'] or ''
+                    password = proxy['password'] or ''
 
-                        pool = urllib3.ProxyManager(proxy_url=url, headers=urllib3.make_headers(proxy_basic_auth=f'{username}:{password}'))
-                        pool.request('GET', 'https://google.com')
-                        return proxy
-                    except:
-                        return None
+                    pool = urllib3.ProxyManager(proxy_url=url, headers=urllib3.make_headers(proxy_basic_auth=f'{username}:{password}'))
+                    pool.request('GET', 'https://google.com')
+                    return proxy
+                except:
+                    return None
 
-        self.session = Client(proxy=proxy())
+        if hasattr(self, 'proxies'):
+            self.session = Client(proxy=proxy())
+        else:
+            self.session = Client()
 
         if not path.exists(path=getcwd() + f'{path.sep}/files'):
             mkdir(path=getcwd() + f'{path.sep}/files')
