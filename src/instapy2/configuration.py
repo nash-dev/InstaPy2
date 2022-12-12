@@ -12,12 +12,12 @@ from instagrapi import Client
 
 class Configuration:
     def __init__(self, session: Client):
-        self.comments = CommentsUtility(session=session)
-        self.follows = FollowsUtility(session=session)
-        self.interactions = InteractionsUtility(session=session)
-        self.likes = LikesUtility(session=session)
-        self.media = MediaUtility(session=session)
-        self.messages = MessageUtility(session=session)
+        self.comments = CommentsUtility(configuration=self, session=session)
+        self.follows = FollowsUtility(configuration=self, session=session)
+        self.interactions = InteractionsUtility(configuration=self, session=session)
+        self.likes = LikesUtility(configuration=self, session=session)
+        self.media = MediaUtility(configuration=self, session=session)
+        self.messages = MessageUtility(configuration=self, session=session)
 
         self.location = LocationHelper(session=session)
         self.people = PeopleHelper(session=session)
