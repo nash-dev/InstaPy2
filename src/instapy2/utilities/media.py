@@ -1,3 +1,4 @@
+from ..configuration import Configuration
 from .utility_base import UtilityBase
 
 from instagrapi import Client
@@ -8,8 +9,8 @@ from typing import List
 import random
 
 class MediaUtility(UtilityBase):
-    def __init__(self, session: Client):
-        super().__init__(session)
+    def __init__(self, configuration: Configuration, session: Client):
+        super().__init__(configuration, session)
         
         self.ignore_to_skip_if_contains = []
         self.required_hashtags = []

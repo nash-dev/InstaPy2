@@ -1,10 +1,11 @@
+from ..configuration import Configuration
 from .utility_base import UtilityBase
 
 from instagrapi import Client
 
 class InteractionsUtility(UtilityBase):
-    def __init__(self, session: Client):
-        super().__init__(session)
+    def __init__(self, configuration: Configuration, session: Client):
+        super().__init__(configuration, session)
 
         self.amount = 0
         self.enabled = False
