@@ -25,6 +25,7 @@ class InstaPy2Base:
             self.session = Client(proxy=proxy())
         else:
             self.session = Client()
+        self.configuration = Configuration(session=self.session)
 
         if not path.exists(path=getcwd() + f'{path.sep}/files'):
             mkdir(path=getcwd() + f'{path.sep}/files')
@@ -37,7 +38,6 @@ class InstaPy2Base:
             self.session.dump_settings(path=getcwd() + f'{path.sep}files{path.sep}{username}.json')
 
         print(f'[INFO]: Successfully logged in as: {self.session.username}.' if logged_in else f'[ERROR]: Failed to log in.')
-        self.configuration = Configuration(session=self.session)
 
     def set_proxies(self, proxies: List[Dict[str, str]] = None):
         self.proxies = proxies

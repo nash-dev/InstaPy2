@@ -1,12 +1,9 @@
-from ..configuration import Configuration
-from .utility_base import UtilityBase
-
 from instagrapi import Client
 from instagrapi.types import Media
 
-class LikesUtility(UtilityBase):
-    def __init__(self, configuration: Configuration, session: Client):
-        super().__init__(configuration, session)
+class LikesUtility:
+    def __init__(self, session: Client):
+        self.session = session
 
         self.enabled = False
         self.percentage = 0

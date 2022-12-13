@@ -1,14 +1,11 @@
-from ..configuration import Configuration
-from .utility_base import UtilityBase
-
 from instagrapi import Client
 from instagrapi.types import UserShort
 
 from typing import List, Tuple
 
-class MessageUtility(UtilityBase):
-    def __init__(self, configuration: Configuration, session: Client):
-        super().__init__(configuration, session)
+class MessageUtility:
+    def __init__(self, session: Client):
+        self.session = session
 
         self.enabled = False
         self.follower_range = 1, 10000

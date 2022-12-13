@@ -1,15 +1,12 @@
-from ..configuration import Configuration
-from .utility_base import UtilityBase
-
 from emoji import emojize
 from instagrapi import Client
 from instagrapi.types import Media
 
 from typing import List, Tuple
 
-class CommentsUtility(UtilityBase):
-    def __init__(self, configuration: Configuration, session: Client):
-        super().__init__(configuration, session)
+class CommentsUtility:
+    def __init__(self, session: Client):
+        self.session = session
 
         self.comments = []
         self.enabled = False
