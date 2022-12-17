@@ -1,5 +1,6 @@
 from .instapy2_base import InstaPy2Base
 
+from .persistence import sqlinterface
 from .types import CommentType
 from .types import FollowType
 from .types import LikeType
@@ -189,6 +190,8 @@ class InstaPy2(InstaPy2Base):
                         else:
                             if self.configuration.media.validated_for_interaction(media=media):
                                 liked = self.configuration.likes.like(media=media)
+                                if liked:
+                                    sqlinterface.insert_id(id=media.id)
 
                                 if self.configuration.comments.enabled_for_liked_media or liked:
                                     commenting = random.randint(a=0, b=100) <= self.configuration.comments.percentage
@@ -234,6 +237,8 @@ class InstaPy2(InstaPy2Base):
                     for media in medias:
                         if self.configuration.media.validated_for_interaction(media=media):
                             liked = self.configuration.likes.like(media=media)
+                            if liked:
+                                sqlinterface.insert_id(id=media.id)
 
                             if self.configuration.comments.enabled_for_liked_media or liked:
                                 commenting = random.randint(a=0, b=100) <= self.configuration.comments.percentage

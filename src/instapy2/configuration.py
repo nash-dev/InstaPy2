@@ -81,16 +81,35 @@ class MediaUtility:
 
     def medias_tag(self, amount: int, tag: str, randomize_media: bool, skip_top: bool) -> List[Media]:
         medias = []
+        print(len(medias))
         if skip_top:
-            medias += [media for media in self.session.hashtag_medias_recent(name=tag, amount=amount) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
+            id = None
+            while len(medias) < amount:
+                chunk, max_id = self.session.hashtag_medias_v1_chunk(name=tag, max_amount=amount, tab_key="recent", max_id=id)
+
+                medias += [media for media in chunk if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
+                print(len(medias))
+
+                id = max_id
+
+            # medias_chunk, end_cursor = [media for media in self.session.hashtag_medias_a1_chunk(name=tag, max_amount=amount) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
         else:
             medias += [media for media in self.session.hashtag_medias_top(name=tag) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
-            medias += [media for media in self.session.hashtag_medias_recent(name=tag, amount=amount - len(medias)) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
+
+            id = None
+            while len(medias) < amount:
+                chunk, max_id = self.session.hashtag_medias_v1_chunk(name=tag, max_amount=amount - len(medias), tab_key="recent", max_id=id)
+
+                medias += [media for media in chunk if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
+                print(len(medias))
+
+                id = max_id
 
         if randomize_media:
             random.shuffle(x=medias)
 
         limited = medias[:amount]
+        print(len(limited))
 
         print(f'[INFO]: Found {len(limited)} of {amount} valid media with the current configuration.')
         return limited
@@ -98,8 +117,14 @@ class MediaUtility:
 
     def medias_username(self, amount: int, username: str, randomize_media: bool) -> List[Media]:
         try:
-            medias = self.session.user_medias(user_id=self.session.user_id_from_username(username=username), amount=amount)
-            
+            medias = []
+            id = None
+            while len(medias) < amount:
+                chunk, max_id = self.session.user_medias_paginated(user_id=self.session.user_id_from_username(username=username), amount=amount, end_cursor=id)
+
+                medias += chunk
+                id = max_id
+
             if randomize_media:
                 random.shuffle(x=medias)
             
