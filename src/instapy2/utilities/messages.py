@@ -1,7 +1,7 @@
 from instagrapi import Client
 from instagrapi.types import UserShort
 
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 class MessageUtility:
     def __init__(self, session: Client):
@@ -47,9 +47,12 @@ class MessageUtility:
         """
         self.percentage = percentage
 
-    def message(self, user: UserShort, text: str) -> Tuple[Exception, bool]:
+    def message(self, user: Union[str, UserShort], text: str) -> Tuple[Union[Exception, None], bool]:
         try:
-            messaged = self.session.direct_send(text=text.format(user.username), user_ids=[self.session.user_id_from_username(username=user.username)])
+            if isinstance(user, str):
+                messaged = self.session.direct_send(text=text.format(user), user_ids=[int(self.session.user_id_from_username(username=user))])
+            else:
+                messaged = self.session.direct_send(text=text.format(user.username), user_ids=[int(self.session.user_id_from_username(username=user.username if user.username is not None else ''))])
             return (None, messaged is not None)
         except Exception as error:
             return error, False

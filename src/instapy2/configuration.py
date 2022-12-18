@@ -5,6 +5,7 @@ from .utilities import CommentsUtility
 from .utilities import FollowsUtility
 from .utilities import InteractionsUtility
 from .utilities import LikesUtility
+from .utilities import LimitationsUtility
 from .utilities import MessageUtility
 
 from instagrapi import Client
@@ -20,6 +21,7 @@ class Configuration:
         self.follows = FollowsUtility(session=session)
         self.interactions = InteractionsUtility()
         self.likes = LikesUtility(session=session)
+        self.limitations = LimitationsUtility(session=session)
         self.media = MediaUtility(configuration=self, session=session)
         self.messages = MessageUtility(session=session)
 
@@ -54,9 +56,9 @@ class MediaUtility:
     def validated_for_interaction(self, media: Media) -> bool:
         if all(hashtag in media.caption_text for hashtag in self.required_hashtags):
             if any(hashtag in media.caption_text for hashtag in self.to_skip):
-                return any(hashtag in media.caption_text for hashtag in self.ignore_to_skip_if_contains)
+                return any(hashtag in media.caption_text for hashtag in self.ignore_to_skip_if_contains) and self.configuration.limitations.within_commenters_range(media=media) and self.configuration.limitations.within_followers_range(user=media.user)
             else:
-                return True
+                return self.configuration.limitations.within_commenters_range(media=media) and self.configuration.limitations.within_followers_range(user=media.user)
         else:
             return False
         
@@ -65,10 +67,10 @@ class MediaUtility:
     def medias_location(self, amount: int, location: int, randomize_media: bool, skip_top: bool) -> List[Media]:
         medias = []
         if skip_top:
-            medias += [media for media in self.session.location_medias_recent(location_pk=location, amount=amount) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
+            medias += [media for media in self.session.location_medias_recent(location_pk=location, amount=amount) if not any(username in media.user.username if media.user.username is not None else '' for username in self.configuration.people.users_to_skip)]
         else:
-            medias += [media for media in self.session.location_medias_top(location_pk=location) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
-            medias += [media for media in self.session.location_medias_recent(location_pk=location, amount=amount - len(medias)) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
+            medias += [media for media in self.session.location_medias_top(location_pk=location) if not any(username in media.user.username if media.user.username is not None else '' for username in self.configuration.people.users_to_skip)]
+            medias += [media for media in self.session.location_medias_recent(location_pk=location, amount=amount - len(medias)) if not any(username in media.user.username if media.user.username is not None else '' for username in self.configuration.people.users_to_skip)]
 
         if randomize_media:
             random.shuffle(x=medias)
@@ -83,24 +85,24 @@ class MediaUtility:
         medias = []
         print(len(medias))
         if skip_top:
-            id = None
+            id = ''
             while len(medias) < amount:
                 chunk, max_id = self.session.hashtag_medias_v1_chunk(name=tag, max_amount=amount, tab_key="recent", max_id=id)
 
-                medias += [media for media in chunk if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
+                medias += [media for media in chunk if not any(username in media.user.username if media.user.username is not None else '' for username in self.configuration.people.users_to_skip)]
                 print(len(medias))
 
                 id = max_id
 
             # medias_chunk, end_cursor = [media for media in self.session.hashtag_medias_a1_chunk(name=tag, max_amount=amount) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
         else:
-            medias += [media for media in self.session.hashtag_medias_top(name=tag) if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
+            medias += [media for media in self.session.hashtag_medias_top(name=tag) if not any(username in media.user.username if media.user.username is not None else '' for username in self.configuration.people.users_to_skip)]
 
-            id = None
+            id = ''
             while len(medias) < amount:
                 chunk, max_id = self.session.hashtag_medias_v1_chunk(name=tag, max_amount=amount - len(medias), tab_key="recent", max_id=id)
 
-                medias += [media for media in chunk if not any(username in media.user.username for username in self.configuration.people.users_to_skip)]
+                medias += [media for media in chunk if not any(username in media.user.username if media.user.username is not None else '' for username in self.configuration.people.users_to_skip)]
                 print(len(medias))
 
                 id = max_id
@@ -118,9 +120,9 @@ class MediaUtility:
     def medias_username(self, amount: int, username: str, randomize_media: bool) -> List[Media]:
         try:
             medias = []
-            id = None
+            id = ''
             while len(medias) < amount:
-                chunk, max_id = self.session.user_medias_paginated(user_id=self.session.user_id_from_username(username=username), amount=amount, end_cursor=id)
+                chunk, max_id = self.session.user_medias_paginated(user_id=int(self.session.user_id_from_username(username=username if username is not None else '')), amount=amount, end_cursor=id)
 
                 medias += chunk
                 id = max_id

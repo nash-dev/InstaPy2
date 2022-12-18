@@ -20,14 +20,14 @@ class FollowsUtility:
     def set_times(self, times: int):
         self.times = times
 
-    def follow(self, user: Union[int, UserShort]) -> Tuple[Exception, bool]:
+    def follow(self, user: Union[int, UserShort]) -> Tuple[Union[Exception, None], bool]:
         try:
-            followed = self.session.user_follow(user_id=self.session.user_id_from_username(username=user.username) if isinstance(user, UserShort) else user)
+            followed = self.session.user_follow(user_id=self.session.user_id_from_username(username=user.username if user.username is not None else '') if isinstance(user, UserShort) else f'{user}')
             return (None, followed)
         except Exception as error:
             return (error, False)
         
-    def unfollow(self, user_id: str, username: str) -> Tuple[Exception, bool]:
+    def unfollow(self, user_id: str, username: str) -> Tuple[Union[Exception, None], bool]:
         try:
             unfollowed = self.session.user_unfollow(user_id=user_id)
             return None, unfollowed

@@ -5,9 +5,10 @@ from .types import CommentType
 from .types import FollowType
 from .types import LikeType
 from .types import PostType
-from .types import UnfollowType
+# from .types import UnfollowType
 
 from os import getcwd, remove, sep
+from pathlib import Path
 from random import choice
 from requests import get
 from typing import List, Union
@@ -15,14 +16,14 @@ from typing import List, Union
 import random
 
 class InstaPy2(InstaPy2Base):
-    def comment(self, amount: int = 50, iterable: List[Union[int, str]] = [], type: CommentType = None, **kwargs):
+    def comment(self, amount: int = 50, iterable: List[Union[int, str]] = [], type: CommentType = CommentType.Locations, **kwargs):
         randomize_media = kwargs['randomize_media'] if 'randomize_media' in kwargs.keys() else False
         skip_top = kwargs['skip_top'] if 'skip_top' in kwargs.keys() else True
 
         match type:
             case CommentType.Locations:
                 for location in iterable:
-                    medias = self.configuration.media.medias_location(amount=amount, location=location, randomize_media=randomize_media, skip_top=skip_top)
+                    medias = self.configuration.media.medias_location(amount=amount, location=int(location), randomize_media=randomize_media, skip_top=skip_top)
 
                     for media in medias:
                         if self.configuration.media.validated_for_interaction(media=media):
@@ -34,7 +35,7 @@ class InstaPy2(InstaPy2Base):
                                 _, _ = self.configuration.comments.comment(media=media, text=random.choice(seq=self.configuration.comments.comments))
 
                             if self.configuration.follows.enabled and following:
-                                self.follow(iterable=[media.user.username], type=FollowType.Users)
+                                self.follow(iterable=[media.user.username if media.user.username is not None else ''], type=FollowType.Users)
 
                             if self.configuration.messages.enabled and messaging:
                                 _, _ = self.configuration.messages.message(user=media.user, text=random.choice(seq=self.configuration.messages.messages))
@@ -42,7 +43,7 @@ class InstaPy2(InstaPy2Base):
                 print('[ERROR]: No `type` was provided.')
 
 
-    def follow(self, amount: int = 50, iterable: List[Union[int, str]] = [], type: FollowType = None, **kwargs):
+    def follow(self, amount: int = 50, iterable: List[Union[int, str]] = [], type: FollowType = FollowType.Commenters, **kwargs):
         randomize_media = kwargs['randomize_media'] if 'randomize_media' in kwargs.keys() else False
         randomize_tags = kwargs['randomize_tags'] if 'randomize_tags' in kwargs.keys() else False
         skip_top = kwargs['skip_top'] if 'skip_top' in kwargs.keys() else True
@@ -53,7 +54,7 @@ class InstaPy2(InstaPy2Base):
         match type:
             case FollowType.Commenters:
                 for username in iterable:
-                    medias = self.configuration.media.medias_username(amount=amount, username=username, randomize_media=randomize_media)
+                    medias = self.configuration.media.medias_username(amount=amount, username=str(username), randomize_media=randomize_media)
 
                     usernames = []
                     found_amount = False
@@ -73,7 +74,7 @@ class InstaPy2(InstaPy2Base):
 
                     self.follow(amount=amount, iterable=usernames, type=FollowType.Users)
             case FollowType.Likers:
-                medias = self.configuration.media.medias_username(amount=amount, username=self.session.username, randomize_media=randomize_media)
+                medias = self.configuration.media.medias_username(amount=amount, username=str(self.session.username), randomize_media=randomize_media)
 
                 usernames = []
                 found_amount = False
@@ -82,7 +83,7 @@ class InstaPy2(InstaPy2Base):
                         if found_amount:
                             break
 
-                        for liker in self.session.media_likers(media_id=media.id):
+                        for liker in self.session.media_likers(media_pk=media.pk):
                             if liker.username not in usernames and len(usernames) < amount:
                                 usernames.append(liker.username)
                             else:
@@ -94,7 +95,7 @@ class InstaPy2(InstaPy2Base):
                 self.follow(amount=amount, iterable=usernames, type=FollowType.Users)
             case FollowType.Locations:
                 for location in iterable:
-                    medias = self.configuration.media.medias_location(amount=amount, location=location, randomize_media=randomize_media, skip_top=skip_top)
+                    medias = self.configuration.media.medias_location(amount=amount, location=int(location), randomize_media=randomize_media, skip_top=skip_top)
 
                     usernames = []
                     found_amount = False
@@ -113,7 +114,7 @@ class InstaPy2(InstaPy2Base):
                         
                     self.follow(amount=amount, iterable=usernames, type=FollowType.Users)
             case FollowType.Tags:
-                tags = [tag.strip() for tag in iterable]
+                tags = [str(tag).strip() for tag in iterable]
 
                 if randomize_tags:
                     random.shuffle(x=tags)
@@ -121,7 +122,7 @@ class InstaPy2(InstaPy2Base):
                 usernames = []
                 found_amount = False
                 for tag in tags:
-                    medias = self.configuration.media.medias_tag(amount=amount, tag=tag, randomize_media=randomize_media)
+                    medias = self.configuration.media.medias_tag(amount=amount, tag=tag, randomize_media=randomize_media, skip_top=skip_top)
 
                     for media in medias:
                         if self.configuration.media.validated_for_interaction(media=media):
@@ -142,30 +143,30 @@ class InstaPy2(InstaPy2Base):
                 followed_count = 0
 
                 for username in iterable:
-                    user_id = self.session.user_id_from_username(username=username)
+                    user_id = self.session.user_id_from_username(username=str(username))
                     following = self.session.user_friendship_v1(user_id=user_id).following
                     messaging = random.randint(a=0, b=100) <= self.configuration.messages.percentage
 
                     did_follow = False
                     if not following:
-                        _, did_follow = self.configuration.follows.follow(user=user_id)
+                        _, did_follow = self.configuration.follows.follow(user=int(user_id))
 
                     if self.configuration.messages.enabled and messaging:
-                        _, _ = self.configuration.messages.message(user=media.user, text=random.choice(seq=self.configuration.messages.messages))
+                        _, _ = self.configuration.messages.message(user=str(username), text=random.choice(seq=self.configuration.messages.messages))
 
                     if did_follow:
                         followed_count += 1
 
                     interacting = random.randint(a=0, b=100) <= self.configuration.interactions.percentage
                     if did_follow and self.configuration.interactions.enabled and interacting:
-                        self.interact_users(amount=self.configuration.interactions.amount, usernames=username, randomize_media=self.configuration.interactions.randomize)
+                        self.interact_users(amount=self.configuration.interactions.amount, usernames=[str(username)], randomize_media=self.configuration.interactions.randomize)
 
                 print(f'[INFO]: Followed {followed_count} of {len(iterable)} users.')
             case _:
                 print('[ERROR]: No `type` was provided.')
     
         
-    def like(self, amount: int = 50, iterable: List[Union[int, str]] = [], type: LikeType = None, **kwargs):
+    def like(self, amount: int = 50, iterable: List[Union[int, str]] = [], type: LikeType = LikeType.Feed, **kwargs):
         """
             Possible **kwargs
                 randomize_likes, randomize_media, randomize_tags, skip_top
@@ -182,7 +183,7 @@ class InstaPy2(InstaPy2Base):
                     iterable = [iterable]
 
                 for username in iterable:
-                    medias = self.configuration.media.medias_username(amount=amount, username=username)
+                    medias = self.configuration.media.medias_username(amount=amount, username=str(username), randomize_media=randomize_media)
 
                     for media in medias:
                         if randomize_likes and random.choice([True, False]):
@@ -206,11 +207,11 @@ class InstaPy2(InstaPy2Base):
 
                                     interacting = random.randint(a=0, b=100) <= self.configuration.interactions.percentage
                                     if did_follow and self.configuration.interactions.enabled and interacting:
-                                        self.interact_users(amount=self.configuration.interactions.amount, usernames=media.user.username, randomize_media=self.configuration.interactions.randomize)
+                                        self.interact_users(amount=self.configuration.interactions.amount, usernames=[media.user.username if media.user.username is not None else ''], randomize_media=self.configuration.interactions.randomize)
 
             case LikeType.Locations:
                 for location in iterable:
-                    medias = self.configuration.media.medias_location(amount=amount, location=location, randomize_media=randomize_media, skip_top=skip_top)
+                    medias = self.configuration.media.medias_location(amount=amount, location=int(location), randomize_media=randomize_media, skip_top=skip_top)
 
                     for media in medias:
                         if self.configuration.media.validated_for_interaction(media=media):
@@ -226,7 +227,7 @@ class InstaPy2(InstaPy2Base):
                                 if self.configuration.follows.enabled and following:
                                     _, _ = self.configuration.follows.follow(user=media.user)
             case LikeType.Tags:
-                tags = [tag.strip() for tag in iterable]
+                tags = [str(tag).strip() for tag in iterable]
 
                 if randomize_tags:
                     random.shuffle(x=tags)
@@ -253,13 +254,13 @@ class InstaPy2(InstaPy2Base):
 
                                 interacting = random.randint(a=0, b=100) <= self.configuration.interactions.percentage
                                 if did_follow and self.configuration.interactions.enabled and interacting:
-                                    self.interact_users(amount=self.configuration.interactions.amount, usernames=media.user.username, randomize_media=self.configuration.interactions.randomize)
+                                    self.interact_users(amount=self.configuration.interactions.amount, usernames=[media.user.username if media.user.username is not None else ''], randomize_media=self.configuration.interactions.randomize)
             case LikeType.Users:
                 if not isinstance(iterable, list):
                     iterable = [iterable]
 
                 for username in iterable:
-                    medias = self.configuration.media.medias_username(amount=amount, username=username, randomize_media=randomize_media)
+                    medias = self.configuration.media.medias_username(amount=amount, username=str(username), randomize_media=randomize_media)
 
                     for media in medias:
                         if self.configuration.media.validated_for_interaction(media=media):
@@ -282,7 +283,8 @@ class InstaPy2(InstaPy2Base):
                 print('[ERROR]: No `type` was provided.')
 
 
-    def unfollow(self, amount: int = 10, iterable: List[str] = [], type: UnfollowType = None, **kwargs):
+    """
+    def unfollow(self, amount: int = 10, iterable: List[str] = [], type: UnfollowType = UnfollowType.Users, **kwargs):
         total_unfollowed = 0
 
         randomize_usernames = kwargs['randomize_usernames'] if 'randomize_usernames' in kwargs.keys() else False
@@ -301,13 +303,14 @@ class InstaPy2(InstaPy2Base):
 
                 for user_id in user_ids:
                     if only_nonfollowers and not self.session.user_friendship_v1(user_id=user_id).followed_by:
-                        _, unfollowed = self.configuration.follows.unfollow(user_id=user_id)
+                        _, unfollowed = self.configuration.follows.unfollow(user_id=user_id, username=)
                         if unfollowed:
                             total_unfollowed += 1
             case _:
                 print('[ERROR]: No `type` was provided.')
         
         print(f'[INFO]: Unfollowed {total_unfollowed} of {len(user_ids)} users.')
+    """
 
 
     def interact_users(self, amount: int = 10, usernames: List[str] = [], randomize_media: bool = False):
@@ -349,7 +352,7 @@ class InstaPy2(InstaPy2Base):
                                         print(f'[ERROR]: {error}.')
 
                 if following: # what is dont_follow_inap_post?
-                    followed = self.configuration.follows.follow(user_id=self.session.user_id_from_username(username=username))
+                    followed = self.configuration.follows.follow(user=int(self.session.user_id_from_username(username=username)))
                     if followed:
                         followed_count += 1
 
@@ -358,7 +361,7 @@ class InstaPy2(InstaPy2Base):
         print(f'[INFO]: Liked {liked_count} media.')
 
 
-    def post(self, type: PostType = None, **kwargs):
+    def post(self, type: PostType = PostType.Path, **kwargs):
         match type:
             case PostType.Path:
                 path = kwargs['path'] if 'path' in kwargs.keys() else None
@@ -382,7 +385,7 @@ class InstaPy2(InstaPy2Base):
                         with open(file=pexels_path, mode='wb') as file:
                             file.write(get(url=photo).content)
 
-                        self.session.photo_upload(path=pexels_path, caption=caption)
+                        self.session.photo_upload(path=pexels_path, caption=caption) # type: ignore
                         remove(path=pexels_path)
             case PostType.Unsplash:
                 caption = kwargs['caption'] if 'caption' in kwargs.keys() else None
@@ -403,7 +406,7 @@ class InstaPy2(InstaPy2Base):
                         with open(file=unsplash_path, mode='wb') as file:
                             file.write(get(url=photo).content)
 
-                        self.session.photo_upload(path=unsplash_path, caption=caption)
+                        self.session.photo_upload(path=unsplash_path, caption=caption) # type: ignore
                         remove(path=unsplash_path)
             case _:
                 print('[ERROR]: No `type` was provided.')
