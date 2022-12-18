@@ -2,7 +2,7 @@ from emoji import emojize
 from instagrapi import Client
 from instagrapi.types import Media
 
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 class CommentsUtility:
     def __init__(self, session: Client):
@@ -48,7 +48,7 @@ class CommentsUtility:
         self.percentage = percentage
 
 
-    def comment(self, media: Media, text: str) -> Tuple[Exception, bool]:
+    def comment(self, media: Media, text: str) -> Tuple[Union[Exception, None], bool]:
         try:
             commented = self.session.media_comment(media_id=media.id, text=emojize(string=text).format(media.user.username))
             return (None, commented is not None)

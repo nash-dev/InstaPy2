@@ -25,6 +25,6 @@ class LocationHelper:
         selection = int(input(f'Enter the index for the correct location (1-{len(place_tuple)}): '))
         if 1 <= selection <= len(places):
             _, _, _, pk = place_tuple[selection - 1]
-            return pk
+            return pk or 0
         else:
             return f'[ERROR]: Selection is invalid. Please choose between 1-{len(places)}.'

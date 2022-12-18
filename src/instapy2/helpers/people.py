@@ -27,6 +27,6 @@ class PeopleHelper:
         self.users_to_skip = usernames
 
     def following_user(self, media: Media) -> bool:
-        user_id = self.session.user_id_from_username(username=media.user.username)
+        user_id = self.session.user_id_from_username(username=media.user.username if media.user.username is not None else '')
         relationship_status = self.session.user_friendship_v1(user_id=user_id)
         return relationship_status.following

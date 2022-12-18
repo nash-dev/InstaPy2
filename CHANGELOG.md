@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [WIP]
-## [0.0.28] - 2022-12-12
+## [0.0.28] - 2022-12-17
 ### Added
 - Added support for Pexels.
     - Pexels requires a query and caption to function.
@@ -13,6 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Unsplash does not require a query but does require a caption.
     - Using Unsplash without a query will result in it using a random photo.
 - Added support for Emoji.
+- Added VERY basic and incomplete support for persistence.
+    - This is to be used for saving ids, etc.
+- Added basic limitations support.
+    - `session.configuration.limitations`.
+
+### Fixed
+- Fixed all type checking issues displayed in VS Code.
+
+### Removed
+- Removed `unfollow(..., ...)` temporarily until it is fully functional.
     
 ## [Released]
 ## [0.0.27] - 2022-11-25
