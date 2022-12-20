@@ -1,19 +1,13 @@
 from os import getcwd, path, sep
 import sqlite3
 
-connection = sqlite3.connect(getcwd() + sep + f'files{sep}data.db')
-cursor = connection.cursor()
+def create_connection() -> sqlite3.Connection:
+    return sqlite3.connect(database=getcwd() + sep + 'files' + sep + 'data.db')
 
-def create_table():
-    cursor.execute('CREATE TABLE liked_media (id TEXT)')
-
-def insert_id(id):
-    cursor.execute(f'INSERT INTO liked_media VALUES (\'{id}\')')
-    connection.commit()
-
-def show():
-    print(cursor.execute('SELECT * FROM liked_media').fetchall())
+def create_cursor(connection: sqlite3.Connection) -> sqlite3.Cursor:
+    return connection.cursor()
 
 
-if cursor.execute('SELECT name FROM sqlite_master WHERE name=\'liked_media\'').fetchone() is None:
-    create_table()
+cursor = create_cursor(connection=create_connection())
+def insert_id(id: str):
+    pass
