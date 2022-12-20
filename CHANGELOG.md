@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - This is to be used for saving ids, etc.
 - Added basic limitations support.
     - `session.configuration.limitations`.
+- Added new function to load a configuration from a file.
 
 ### Fixed
 - Fixed all type checking issues displayed in VS Code.

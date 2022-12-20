@@ -1,7 +1,7 @@
 from instagrapi import Client
 from instagrapi.types import UserShort
 
-from typing import Tuple, Union
+from typing import Dict, Tuple, Union
 
 class FollowsUtility:
     def __init__(self, session: Client):
@@ -10,6 +10,11 @@ class FollowsUtility:
         self.enabled = False
         self.percentage = 0
         self.times = 1
+
+    def from_json(self, data: Dict):
+        self.enabled = data['enabled'] or False
+        self.percentage = data['percentage'] or 0
+        self.times = data['times'] or 1
 
     def set_enabled(self, enabled: bool):
         self.enabled = enabled

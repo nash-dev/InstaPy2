@@ -34,11 +34,14 @@ setup(
     keywords=[
         'automation',
         'bot',
+        'ig',
         'insta',
         'instagram',
         'instagrapi',
         'instapy',
-        'instapy2'
+        'instapy2',
+        'python',
+        'python3'
     ],
     license_file='LICENSE.md',
     long_description=read(file='README.md'),

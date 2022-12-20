@@ -1,7 +1,7 @@
 from instagrapi import Client
 from instagrapi.types import Media, UserShort
 
-from typing import Tuple
+from typing import Dict, Tuple
 
 class LimitationsUtility:
     def __init__(self, session: Client):
@@ -10,6 +10,11 @@ class LimitationsUtility:
         self.commenters_range = (1, 100)
         self.enabled = False
         self.followers_range = (1, 1000)
+
+    def from_json(self, data: Dict):
+        self.commenters_range = (data['commenters_range'][0] or 1, data['commenters_range'][1] or 100)
+        self.enabled = data['enabled'] or False
+        self.followers_range = (data['followers_range'][0] or 1, data['followers_range'][1] or 1)
 
     def set_commenters_range(self, range: Tuple[int, int]):
         self.commenters_range = range
