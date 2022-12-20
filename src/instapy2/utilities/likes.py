@@ -1,12 +1,18 @@
 from instagrapi import Client
 from instagrapi.types import Media
 
+from typing import Dict
+
 class LikesUtility:
     def __init__(self, session: Client):
         self.session = session
 
         self.enabled = False
         self.percentage = 0
+
+    def from_json(self, data: Dict):
+        self.enabled = data['enabled'] or False
+        self.percentage = data['percentage'] or 0
 
     def set_enabled(self, enabled: bool):
         self.enabled = enabled

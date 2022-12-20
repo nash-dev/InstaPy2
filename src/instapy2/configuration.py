@@ -11,12 +11,16 @@ from .utilities import MessageUtility
 from instagrapi import Client
 from instagrapi.types import Media
 
+from json import load
+from os import getcwd, sep
 from typing import List
 
 import random
 
 class Configuration:
     def __init__(self, session: Client):
+        self.session = session
+
         self.comments = CommentsUtility(session=session)
         self.follows = FollowsUtility(session=session)
         self.interactions = InteractionsUtility()
@@ -27,6 +31,20 @@ class Configuration:
 
         self.location = LocationHelper(session=session)
         self.people = PeopleHelper(session=session)
+
+    def from_file(self):
+        config_json = load(fp=open(file=f'{getcwd()}{sep}config.json'))
+        configuration = config_json['accounts'][self.session.username]['configuration']
+        print(config_json)
+
+        if 'comments' in configuration: self.comments.from_json(data=configuration['comments'])
+        if 'follows' in configuration: self.follows.from_json(data=configuration['follows'])
+        if 'interactions' in configuration: self.interactions.from_json(data=configuration['interactions'])
+        if 'likes' in configuration: self.likes.from_json(data=configuration['likes'])
+        if 'limitations' in configuration: self.limitations.from_json(data=configuration['limitations'])
+        if 'messages' in configuration: self.messages.from_json(data=configuration['messages'])
+        if 'people' in configuration: self.people.from_json(data=configuration['people'])
+
 
     def set_pexels_api_key(self, key: str):
         self.pexels_api_key = key

@@ -1,16 +1,20 @@
 from instagrapi import Client
 from instagrapi.types import UserShort
 
-from typing import List, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 class MessageUtility:
     def __init__(self, session: Client):
         self.session = session
 
         self.enabled = False
-        self.follower_range = 1, 10000
         self.messages = []
         self.percentage = 0
+
+    def from_json(self, data: Dict):
+        self.enabled = data['enabled'] or False
+        self.messages = data['messages'] or []
+        self.percentage = data['percentage'] or 0
 
     def set_enabled(self, enabled: bool):
         """
@@ -19,15 +23,6 @@ class MessageUtility:
             :param enabled: enabled=True means a user will be direct messaged.
         """
         self.enabled = enabled
-
-    def set_follower_range(self, follower_range: Tuple[int, int]):
-        """
-            Sets the limit to how many followers a user can have to be direct messaged.
-
-            :param follower_range: follower_range=(1, 100) means a user with between 1 and 100
-            followers will be direct messaged.
-        """
-        self.follower_range = follower_range
 
     def set_messages(self, messages: List[str]):
         """

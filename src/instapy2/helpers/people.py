@@ -1,7 +1,7 @@
 from instagrapi import Client
 from instagrapi.types import Media
 
-from typing import List
+from typing import Dict, List
 
 class PeopleHelper:
     def __init__(self, session: Client):
@@ -9,6 +9,10 @@ class PeopleHelper:
         
         self.friends_to_skip = []
         self.users_to_skip = []
+
+    def from_json(self, data: Dict):
+        self.friends_to_skip = data['friends_to_skip'] or []
+        self.users_to_skip = data['users_to_skip'] or []
 
     def skip_friends(self, usernames: List[str]):
         """
