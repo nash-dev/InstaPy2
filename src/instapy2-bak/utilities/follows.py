@@ -9,12 +9,11 @@ class FollowsUtility:
 
         self.enabled = False
         self.percentage = 0
-        self.times = 1
 
     def from_json(self, data: Dict):
         self.enabled = data['enabled'] or False
         self.percentage = data['percentage'] or 0
-        self.times = data['times'] or 1
+
 
     def set_enabled(self, enabled: bool):
         self.enabled = enabled
@@ -22,8 +21,6 @@ class FollowsUtility:
     def set_percentage(self, percentage: int):
         self.percentage = percentage
 
-    def set_times(self, times: int):
-        self.times = times
 
     def follow(self, user: Union[int, UserShort]) -> Tuple[Union[Exception, None], bool]:
         try:
@@ -32,9 +29,11 @@ class FollowsUtility:
         except Exception as error:
             return (error, False)
         
+"""
     def unfollow(self, user_id: str, username: str) -> Tuple[Union[Exception, None], bool]:
         try:
             unfollowed = self.session.user_unfollow(user_id=user_id)
             return None, unfollowed
         except Exception as error:
             return (error, False)
+"""

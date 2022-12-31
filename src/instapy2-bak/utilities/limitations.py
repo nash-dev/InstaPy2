@@ -7,14 +7,19 @@ class LimitationsUtility:
     def __init__(self, session: Client):
         self.session = session
 
-        self.commenters_range = (1, 100)
+        self.allow_private = False
+        self.commenters_range = (0, 0)
         self.enabled = False
-        self.followers_range = (1, 1000)
+        self.followers_range = (0, 0)
 
     def from_json(self, data: Dict):
-        self.commenters_range = (data['commenters_range'][0] or 1, data['commenters_range'][1] or 100)
+        self.commenters_range = (data['commenters_range'][0] or 0, data['commenters_range'][1] or 0)
         self.enabled = data['enabled'] or False
-        self.followers_range = (data['followers_range'][0] or 1, data['followers_range'][1] or 1)
+        self.followers_range = (data['followers_range'][0] or 0, data['followers_range'][1] or 0)
+
+
+    def set_allow_private(self, allow_private: bool):
+        self.allow_private = allow_private
 
     def set_commenters_range(self, range: Tuple[int, int]):
         self.commenters_range = range
@@ -28,8 +33,8 @@ class LimitationsUtility:
 
     def within_commenters_range(self, media: Media) -> bool:
         min, max = self.commenters_range
-        commenters_count = media.comment_count
-        return self.enabled if self.enabled else min <= commenters_count if commenters_count is not None else 0 <= max
+        commenters_count = media.comment_count or 0
+        return self.enabled if self.enabled else min <= commenters_count <= max
     
     def within_followers_range(self, user: UserShort) -> bool:
         min, max = self.followers_range
