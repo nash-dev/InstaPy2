@@ -10,6 +10,9 @@ from pathlib import Path
 from instagrapi import Client
 
 class Authentication:
+    def __create_persistence(self):
+        self.persistence.create_tables()
+
     def __files_exists(self, path: str) -> bool:
         return exists(path=path)
     
@@ -22,8 +25,7 @@ class Authentication:
 
     def __init__(self):
         self.logger = Logger()
-        self.persistence = Persistence()
-    
+        
 
     def login(self, username: str, password: str, verification_code: str = '', proxy: str = ''):
         files_path = getcwd() + sep + 'files'
@@ -51,3 +53,6 @@ class Authentication:
         # MARK: Placing them here to lessen the amount of code needed to configure shit.
         self.limitations = Limitations(session=self.session)
         self.medias = Medias(session=self.session)
+        self.persistence = Persistence()
+
+        self.__create_persistence()

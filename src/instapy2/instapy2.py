@@ -2,14 +2,9 @@ from .utilities import Utility
 from .types import LikeType
 
 class InstaPy2(Utility):
-    def __init__(self):
-        super().__init__()
-        self.persistence.create_tables()
-
-
     def like(self, amount: int, iterable: list[int | str], type: LikeType):
-        # self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
-        # exit(0)
+        self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
+        exit(0)
 
         match type:
             case LikeType.HASHTAG:
