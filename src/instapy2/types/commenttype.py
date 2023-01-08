@@ -1,5 +1,5 @@
 from enum import Enum
 
-class LikeType(Enum):
+class CommentType(Enum):
     HASHTAG = 0
     USER = 1
