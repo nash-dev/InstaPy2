@@ -13,6 +13,7 @@ from instagrapi.types import Media
 
 from json import load
 from os import getcwd, sep
+from os.path import exists
 from typing import List
 
 import random
@@ -33,17 +34,44 @@ class Configuration:
         self.people = PeopleHelper(session=session)
 
     def from_file(self):
-        config_json = load(fp=open(file=f'{getcwd()}{sep}config.json'))
-        configuration = config_json['accounts'][self.session.username]['configuration']
-        print(config_json)
+        if not exists(path=getcwd() + sep + 'configuration.json'):
+            print('[ERROR]: Failed to find a configuration.json file. Reverting to defaults.')
+            return
 
-        if 'comments' in configuration: self.comments.from_json(data=configuration['comments'])
-        if 'follows' in configuration: self.follows.from_json(data=configuration['follows'])
-        if 'interactions' in configuration: self.interactions.from_json(data=configuration['interactions'])
-        if 'likes' in configuration: self.likes.from_json(data=configuration['likes'])
-        if 'limitations' in configuration: self.limitations.from_json(data=configuration['limitations'])
-        if 'messages' in configuration: self.messages.from_json(data=configuration['messages'])
-        if 'people' in configuration: self.people.from_json(data=configuration['people'])
+        try:
+            fp = open(file=getcwd() + sep + 'configuration.json')
+        except:
+            print('[ERROR]: Unable to open configuration.json. Reverting to defaults.')
+            return
+        
+        try:
+            configuration_json = load(fp=fp)
+        except:
+            print('[ERROR]: Unable to load configuration.json as json. Reverting to defaults.')
+            return
+
+        configuration = configuration_json['accounts'][self.session.username]['configuration']
+        
+        if 'comments' in configuration:
+            self.comments.from_json(data=configuration['comments'])
+
+        if 'follows' in configuration:
+            self.follows.from_json(data=configuration['follows'])
+
+        if 'interactions' in configuration:
+            self.interactions.from_json(data=configuration['interactions'])
+
+        if 'likes' in configuration:
+            self.likes.from_json(data=configuration['likes'])
+
+        if 'limitations' in configuration:
+            self.limitations.from_json(data=configuration['limitations'])
+
+        if 'messages' in configuration:
+            self.messages.from_json(data=configuration['messages'])
+
+        if 'people' in configuration:
+            self.people.from_json(data=configuration['people'])
 
 
     def set_pexels_api_key(self, key: str):
@@ -57,24 +85,25 @@ class MediaUtility:
     def __init__(self, configuration: Configuration, session: Client):
         self.configuration = configuration
         self.session = session
-        
-        self.ignore_to_skip_if_contains = []
-        self.required_hashtags = []
-        self.to_skip = []
 
-    def ignore(self, hashtags: List[str]): # ignore skip if caption contains any
-        self.ignore_to_skip_if_contains = hashtags
+        self.ignore_skip_if_contains_if_contains = [] # fkn hell
+        self.requires_hashtags = []
+        self.skip_if_contains = []
 
-    def require(self, hashtags: List[str]): # only like if all in caption
-        self.required_hashtags = hashtags
+    def set_ignore_skip_if_contains_if_contains(self, iterable: List[str]):
+        self.ignore_skip_if_contains_if_contains = iterable
 
-    def skip(self, hashtags: List[str]): # don't like if any in caption, may still unfollow
-        self.to_skip = hashtags
+    def set_requires_hashtags(self, iterable: List[str]):
+        self.requires_hashtags = iterable
+
+    def set_skip_if_contains(self, iterable: List[str]):
+        self.skip_if_contains = iterable
+
 
     def validated_for_interaction(self, media: Media) -> bool:
-        if all(hashtag in media.caption_text for hashtag in self.required_hashtags):
-            if any(hashtag in media.caption_text for hashtag in self.to_skip):
-                return any(hashtag in media.caption_text for hashtag in self.ignore_to_skip_if_contains) and self.configuration.limitations.within_commenters_range(media=media) and self.configuration.limitations.within_followers_range(user=media.user)
+        if all(hashtag in media.caption_text for hashtag in self.requires_hashtags):
+            if any(hashtag in media.caption_text for hashtag in self.skip_if_contains):
+                return any(hashtag in media.caption_text for hashtag in self.ignore_skip_if_contains_if_contains) and self.configuration.limitations.within_commenters_range(media=media) and self.configuration.limitations.within_followers_range(user=media.user)
             else:
                 return self.configuration.limitations.within_commenters_range(media=media) and self.configuration.limitations.within_followers_range(user=media.user)
         else:
