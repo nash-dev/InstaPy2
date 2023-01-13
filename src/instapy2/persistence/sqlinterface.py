@@ -1,9 +1,9 @@
-"""
-from os import getcwd, path, sep
-import sqlite3
+# from os import getcwd, path, sep
+# import sqlite3
 
+"""
 def create_connection() -> sqlite3.Connection:
-    return sqlite3.connect(database='data.db')
+    return sqlite3.connect(database=getcwd() + sep + 'files' + sep + 'data.db')
 
 def create_cursor(connection: sqlite3.Connection) -> sqlite3.Cursor:
     return connection.cursor()
