@@ -16,8 +16,8 @@ class InstaPy2Base:
             self.session = Client()
             print('[INFO]: Created session without proxy.')
 
-        if not path.exists(path=getcwd() + sep + 'files'):
-            mkdir(path=getcwd() + sep + 'files')
+        if not path.exists(path=getcwd() + f'{sep}/files'):
+            mkdir(path=getcwd() + f'{sep}/files')
             print('[INFO]: Created files directory.')
 
         if path.exists(path=getcwd() + sep + 'files' + sep + f'{username}.json'):
