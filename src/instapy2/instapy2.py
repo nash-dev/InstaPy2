@@ -1,11 +1,13 @@
 from .utilities import Utility
 from .types import CommentType, LikeType
 
+from typing import Union
+
 class InstaPy2(Utility):
-    def comment(self, amount: int, iterable: list[int | str], type: CommentType):
+    def comment(self, amount: int, iterable: list[Union[int, None] | str], type: CommentType):
         pass
 
-    def like(self, amount: int, iterable: list[int | str], type: LikeType):
+    def like(self, amount: int, iterable: list[Union[int, None] | str], type: LikeType):
         self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
         exit(0)
 
@@ -25,15 +27,42 @@ class InstaPy2(Utility):
                             if not self.persistence.identifier_exists(table='medias_likes_hashtag', identifier=media.id):
                                 try:
                                     liked = self.session.media_like(media_id=media.id)
-                                    if liked:
-                                        self.persistence.insert_identifier(table='medias_likes_hashtag', identifier=media.id)
-
                                     if not liked:
                                         self.logger.error(message='Failed to like media.')
                                     else:
+                                        self.persistence.insert_identifier(table='medias_likes_hashtag', identifier=media.id)
                                         self.logger.info(message='Successfully liked media.')
                                 except:
                                     self.logger.error(message='Failed to like media.')
+                            else:
+                                pass
+            case LikeType.LOCATION:
+                for elem in iterable:
+                    location = self.get_pk(query=input('Enter a location name (eg: Bondi Beach, New South Wales): ')) if elem is None else int(elem)
+
+                    if location is None:
+                        self.logger.error(message=f'An error occurred while scraping media for location: {location}.')
+                    else:
+                        identifiers = self.persistence.all_identifiers('medias_likes_location')
+                        medias = self.medias.get_medias_for_location(amount=amount, location=location, identifiers_to_skip=identifiers)
+
+                        for media in medias:
+                            if not self.is_media_validated_for_interaction(media=media):
+                                self.logger.error(message='Media is not validated for interaction.')
+                            else:
+                                self.logger.info(message='Media is validated for interaction.')
+                                if not self.persistence.identifier_exists(table='medias_likes_location', identifier=media.id):
+                                    try:
+                                        liked = self.session.media_like(media_id=media.id)
+                                        if not liked:
+                                            self.logger.error(message='Failed to like media.')
+                                        else:
+                                            self.persistence.insert_identifier(table='medias_likes_location', identifier=media.id)
+                                            self.logger.info(message='Successfully liked media.')
+                                    except:
+                                        self.logger.error(message='Failed to like media.')
+                                else:
+                                    pass
             case LikeType.USER:
                 for elem in iterable:
                     username = str(elem)
@@ -52,12 +81,12 @@ class InstaPy2(Utility):
                                 if not self.persistence.identifier_exists(table='medias_likes_user', identifier=media.id):
                                     try:
                                         liked = self.session.media_like(media_id=media.id)
-                                        if liked:
-                                            self.persistence.insert_identifier(table='medias_likes_user', identifier=media.id)
-
                                         if not liked:
                                             self.logger.error(message='Failed to like media.')
                                         else:
+                                            self.persistence.insert_identifier(table='medias_likes_user', identifier=media.id)
                                             self.logger.info(message='Successfully liked media.')
                                     except:
                                         self.logger.error(message='Failed to like media.')
+                                else:
+                                    pass

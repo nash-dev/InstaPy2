@@ -23,6 +23,23 @@ class Medias:
 
         return medias
     
+    def get_medias_for_location(self, amount: int, location: int, **kwargs) -> list[Media]:
+        tab_key = kwargs['tab_key'] if 'tab_key' in kwargs.keys() else 'edge_location_to_media'
+        identifiers_to_skip = kwargs['identifiers_to_skip'] if 'identifiers_to_skip' in kwargs.keys() else []
+
+        max_id = ''
+        medias = []
+
+        while len(medias) < amount:
+            try:
+                chunk, cursor = self.session.location_medias_a1_chunk(location_pk=location, max_amount=amount, tab_key=tab_key, max_id=max_id)
+                medias += [media for media in chunk if media.id not in identifiers_to_skip]
+                max_id = cursor
+            except:
+                break
+
+        return medias
+    
     def get_medias_for_user(self, amount: int, username: str, **kwargs) -> list[Media] | None:
         identifiers_to_skip = kwargs['identifiers_to_skip'] if 'identifiers_to_skip' in kwargs.keys() else []
             

@@ -11,7 +11,6 @@ class Limitations:
         self.following_range = (1, 1000)
 
         self.skip_business = False
-        self.skip_public = False
         self.skip_private = True
         self.skip_verified = False
 
@@ -28,9 +27,6 @@ class Limitations:
     def set_skip_business(self, skip: bool):
         self.skip_business = skip
 
-    def set_skip_public(self, skip: bool):
-        self.skip_public = skip
-
     def set_skip_private(self, skip: bool):
         self.skip_private = skip
 
@@ -45,21 +41,15 @@ class Limitations:
         if not enabled:
             return True
         else:
-            user_info = self.session.user_info_by_username(username=username) if username is not None else None
-            if user_info is not None:
-                if self.skip_business and user_info.is_business:
-                    return False
-                elif self.skip_private and user_info.is_private:
-                    return False
-                elif self.skip_public and not user_info.is_private:
-                    return False
-                elif self.skip_verified and user_info.is_verified:
-                   return False
-                else:
-                    return True
-            else:
+            if username is None:
                 return False
-
+            else:
+                try:
+                    user_info = self.session.user_info_by_username(username=username)
+                except:
+                    user_info = None
+                
+                return False if user_info is None else all([self.skip_business and not user_info.is_business, self.skip_private and not user_info.is_private, self.skip_verified and not user_info.is_verified])
 
     def within_commenter_range(self, media: Media) -> bool:
         enabled = self.enabled

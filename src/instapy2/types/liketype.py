@@ -2,4 +2,5 @@ from enum import Enum
 
 class LikeType(Enum):
     HASHTAG = 0
-    USER = 1
+    LOCATION = 1
+    USER = 2
