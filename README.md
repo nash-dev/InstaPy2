@@ -27,12 +27,13 @@ Find all of the documentation in the link above.
 Find a variety of examples in the link above.
 
 ## Latest Changes
-> 25th November 2022
+### Rework Branch
+> 14th January 2023
 
-- Added ability to direct message users.
-    - See [CHANGELOG.md](CHANGELOG.md) for more information.
+- See [CHANGELOG.md](CHANGELOG.md) for more information.
 
 ## Previous Changes
+### Main Branch
 > 25th November 2022
 
 No changes have been made.

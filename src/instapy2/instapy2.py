@@ -7,8 +7,8 @@ from typing import Union
 
 class InstaPy2(Utility):
     def comment(self, amount: int, iterable: list[Union[int, None] | str], type: CommentType):
-        self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
-        exit(0)
+        #self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
+        #exit(0)
 
         match type:
             case CommentType.HASHTAG:
@@ -41,8 +41,8 @@ class InstaPy2(Utility):
                         
 
     def like(self, amount: int, iterable: list[Union[int, None] | str], type: LikeType):
-        self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
-        exit(0)
+        #self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
+        #exit(0)
 
         match type:
             case LikeType.HASHTAG:

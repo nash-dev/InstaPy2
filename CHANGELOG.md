@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > Below is a minimal changelog. More changes have been made but they aren't worth detailing.
 ### Added
 - Added new authentication, logging, persistence and utility classes.
+    - Added timestamp to persistence for future features.
+- Added new comment function with support for hashtags.
 - Added new like function with support for hashtags, locations and usernames.
 
 ### Changed
