@@ -1,4 +1,17 @@
+from enum import StrEnum
 from logging import DEBUG, Formatter, getLogger, StreamHandler
+
+class LoggerConstants(StrEnum):
+    MEDIA_INVALID = 'Media could not be validated for interaction.'
+    MEDIA_VALID = 'Media is valid for interaction.'
+
+    MEDIA_COMMENT_FAIL = 'Failed to comment on media.'
+    MEDIA_COMMENT_SUCCESS = 'Successfully commented on media.'
+
+    MEDIA_LIKE_FAIL = 'Failed to like media.'
+    MEDIA_LIKE_SUCCESS = 'Successfully liked media.'
+
+    PERCENTAGE_OUT_OF_BOUNDS = 'Percentage did not fall within set value.'
 
 class Logger:
     def __errorHandler(self) -> StreamHandler:

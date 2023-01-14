@@ -1,3 +1,4 @@
+from .comments import Comments
 from .limitations import Limitations
 from .logger import Logger
 from .medias import Medias
@@ -51,6 +52,7 @@ class Authentication:
             self.logger.info(message=f'Successfully logged in as: {self.session.username}.')
 
         # MARK: Placing them here to lessen the amount of code needed to configure shit.
+        self.comments = Comments()
         self.limitations = Limitations(session=self.session)
         self.medias = Medias(session=self.session)
         self.persistence = Persistence()

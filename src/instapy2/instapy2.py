@@ -1,11 +1,44 @@
-from .utilities import Utility
+from .utilities import LoggerConstants, Utility
 from .types import CommentType, LikeType
 
+from datetime import datetime
+from random import choice, randint
 from typing import Union
 
 class InstaPy2(Utility):
     def comment(self, amount: int, iterable: list[Union[int, None] | str], type: CommentType):
-        pass
+        self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
+        exit(0)
+
+        match type:
+            case CommentType.HASHTAG:
+                for elem in iterable:
+                    hashtag = str(elem)
+
+                    identifiers = self.persistence.all_identifiers(table='medias_comments_hashtag')
+                    medias = self.medias.get_medias_for_hashtag(amount=amount, hashtag=hashtag, identifiers_to_skip=identifiers)
+
+                    for media in medias:
+                        if not self.is_media_validated_for_interaction(media=media):
+                            self.logger.error(message=LoggerConstants.MEDIA_INVALID)
+                        else:
+                            self.logger.info(message=LoggerConstants.MEDIA_VALID)
+                            if not self.persistence.identifier_exists(table='medias_comments_hashtag', identifier=media.id):
+                                if not randint(a=0, b=100) <= self.comments.percentage:
+                                    self.logger.error(message=LoggerConstants.PERCENTAGE_OUT_OF_BOUNDS)
+                                else:
+                                    try:
+                                        commented = self.session.media_comment(media_id=media.id, text=choice(seq=self.comments.comments)) is not None
+                                        if not commented:
+                                            self.logger.error(message=LoggerConstants.MEDIA_COMMENT_FAIL)
+                                        else:
+                                            self.persistence.insert_identifier(table='medias_comments_hashtag', identifier=media.id, timestamp=datetime.now())
+                                            self.logger.info(message=LoggerConstants.MEDIA_COMMENT_SUCCESS)
+                                    except:
+                                        self.logger.error(message=LoggerConstants.MEDIA_COMMENT_FAIL)
+                            else:
+                                pass
+                        
 
     def like(self, amount: int, iterable: list[Union[int, None] | str], type: LikeType):
         self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
@@ -21,19 +54,19 @@ class InstaPy2(Utility):
 
                     for media in medias:
                         if not self.is_media_validated_for_interaction(media=media):
-                            self.logger.error(message='Media is not validated for interaction.')
+                            self.logger.error(message=LoggerConstants.MEDIA_INVALID)
                         else:
-                            self.logger.info(message='Media is validated for interaction.')
+                            self.logger.info(message=LoggerConstants.MEDIA_VALID)
                             if not self.persistence.identifier_exists(table='medias_likes_hashtag', identifier=media.id):
                                 try:
                                     liked = self.session.media_like(media_id=media.id)
                                     if not liked:
-                                        self.logger.error(message='Failed to like media.')
+                                        self.logger.error(message=LoggerConstants.MEDIA_LIKE_FAIL)
                                     else:
-                                        self.persistence.insert_identifier(table='medias_likes_hashtag', identifier=media.id)
-                                        self.logger.info(message='Successfully liked media.')
+                                        self.persistence.insert_identifier(table='medias_likes_hashtag', identifier=media.id, timestamp=datetime.now())
+                                        self.logger.info(message=LoggerConstants.MEDIA_LIKE_SUCCESS)
                                 except:
-                                    self.logger.error(message='Failed to like media.')
+                                    self.logger.error(message=LoggerConstants.MEDIA_LIKE_FAIL)
                             else:
                                 pass
             case LikeType.LOCATION:
@@ -48,19 +81,19 @@ class InstaPy2(Utility):
 
                         for media in medias:
                             if not self.is_media_validated_for_interaction(media=media):
-                                self.logger.error(message='Media is not validated for interaction.')
+                                self.logger.error(message=LoggerConstants.MEDIA_INVALID)
                             else:
-                                self.logger.info(message='Media is validated for interaction.')
+                                self.logger.info(message=LoggerConstants.MEDIA_VALID)
                                 if not self.persistence.identifier_exists(table='medias_likes_location', identifier=media.id):
                                     try:
                                         liked = self.session.media_like(media_id=media.id)
                                         if not liked:
-                                            self.logger.error(message='Failed to like media.')
+                                            self.logger.error(message=LoggerConstants.MEDIA_LIKE_FAIL)
                                         else:
-                                            self.persistence.insert_identifier(table='medias_likes_location', identifier=media.id)
-                                            self.logger.info(message='Successfully liked media.')
+                                            self.persistence.insert_identifier(table='medias_likes_location', identifier=media.id, timestamp=datetime.now())
+                                            self.logger.info(message=LoggerConstants.MEDIA_LIKE_SUCCESS)
                                     except:
-                                        self.logger.error(message='Failed to like media.')
+                                        self.logger.error(message=LoggerConstants.MEDIA_LIKE_FAIL)
                                 else:
                                     pass
             case LikeType.USER:
@@ -75,18 +108,18 @@ class InstaPy2(Utility):
                     else:
                         for media in medias:
                             if not self.is_media_validated_for_interaction(media=media):
-                                self.logger.error(message='Media is not validated for interaction.')
+                                self.logger.error(message=LoggerConstants.MEDIA_INVALID)
                             else:
-                                self.logger.info(message='Media is validated for interaction.')
+                                self.logger.info(message=LoggerConstants.MEDIA_VALID)
                                 if not self.persistence.identifier_exists(table='medias_likes_user', identifier=media.id):
                                     try:
                                         liked = self.session.media_like(media_id=media.id)
                                         if not liked:
-                                            self.logger.error(message='Failed to like media.')
+                                            self.logger.error(message=LoggerConstants.MEDIA_LIKE_FAIL)
                                         else:
-                                            self.persistence.insert_identifier(table='medias_likes_user', identifier=media.id)
-                                            self.logger.info(message='Successfully liked media.')
+                                            self.persistence.insert_identifier(table='medias_likes_user', identifier=media.id, timestamp=datetime.now())
+                                            self.logger.info(message=LoggerConstants.MEDIA_LIKE_SUCCESS)
                                     except:
-                                        self.logger.error(message='Failed to like media.')
+                                        self.logger.error(message=LoggerConstants.MEDIA_LIKE_FAIL)
                                 else:
                                     pass

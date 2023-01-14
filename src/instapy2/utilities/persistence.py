@@ -1,8 +1,10 @@
+from datetime import datetime
+from time import mktime
 from sqlite3 import connect, Connection, Cursor
 
 class Persistence:
     defaults = {
-        'medias' : ['id']
+        'medias' : ['id', 'timestamp']
     }
 
 
@@ -38,8 +40,8 @@ class Persistence:
 
         return cursor.execute(f'SELECT identifier FROM {table} WHERE identifier=\'{identifier}\'').fetchone() is not None
 
-    def insert_identifier(self, table: str, identifier: str):
+    def insert_identifier(self, table: str, identifier: str, timestamp: datetime):
         cursor = self.__cursor()
     
-        cursor.execute(f'INSERT INTO {table} VALUES (?)', (identifier,))
+        cursor.execute(f'INSERT INTO {table} VALUES (?, ?)', (identifier, mktime(t=timestamp.timetuple(),)))
         cursor.connection.commit()
