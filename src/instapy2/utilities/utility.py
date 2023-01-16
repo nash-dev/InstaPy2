@@ -46,3 +46,9 @@ class Utility(Authentication):
                         return False
                     else:
                         return True
+
+    def do_after(self, function):
+        function()
+
+    def nop(self):
+        pass

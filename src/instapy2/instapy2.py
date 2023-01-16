@@ -6,9 +6,14 @@ from random import choice, randint
 from typing import Union
 
 class InstaPy2(Utility):
-    def comment(self, amount: int, iterable: list[Union[int, None] | str], type: CommentType):
+    def comment(self, amount: int, iterable: list[Union[int, None] | str], type: CommentType, **kwargs):
         #self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
         #exit(0)
+
+        if 'do_after' in kwargs.keys():
+            function = kwargs['do_after']()
+        else:
+            function = self.nop()
 
         match type:
             case CommentType.HASHTAG:
@@ -38,11 +43,17 @@ class InstaPy2(Utility):
                                         self.logger.error(message=LoggerConstants.MEDIA_COMMENT_FAIL)
                             else:
                                 pass
+                        self.do_after(function=function)
                         
 
-    def like(self, amount: int, iterable: list[Union[int, None] | str], type: LikeType):
+    def like(self, amount: int, iterable: list[Union[int, None] | str], type: LikeType, **kwargs):
         #self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
         #exit(0)
+
+        if 'do_after' in kwargs.keys():
+            function = kwargs['do_after']()
+        else:
+            function = self.nop()
 
         match type:
             case LikeType.HASHTAG:
@@ -69,6 +80,7 @@ class InstaPy2(Utility):
                                     self.logger.error(message=LoggerConstants.MEDIA_LIKE_FAIL)
                             else:
                                 pass
+                        self.do_after(function=function)
             case LikeType.LOCATION:
                 for elem in iterable:
                     location = self.get_pk(query=input('Enter a location name (eg: Bondi Beach, New South Wales): ')) if elem is None else int(elem)
@@ -96,6 +108,7 @@ class InstaPy2(Utility):
                                         self.logger.error(message=LoggerConstants.MEDIA_LIKE_FAIL)
                                 else:
                                     pass
+                            self.do_after(function=function)
             case LikeType.USER:
                 for elem in iterable:
                     username = str(elem)
@@ -123,3 +136,4 @@ class InstaPy2(Utility):
                                         self.logger.error(message=LoggerConstants.MEDIA_LIKE_FAIL)
                                 else:
                                     pass
+                            self.do_after(function=function)
