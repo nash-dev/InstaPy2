@@ -19,7 +19,12 @@ class Medias:
                 medias += [media for media in chunk if media.id not in identifiers_to_skip]
                 end_cursor = cursor
             except:
-                break
+                try:
+                    chunk, cursor = self.session.hashtag_medias_v1_chunk(name=hashtag, max_amount=amount, tab_key=tab_key, max_id=end_cursor)
+                    medias += [media for media in chunk if media.id not in identifiers_to_skip]
+                    end_cursor = cursor
+                except:
+                    break
 
         return medias
     
@@ -36,7 +41,12 @@ class Medias:
                 medias += [media for media in chunk if media.id not in identifiers_to_skip]
                 max_id = cursor
             except:
-                break
+                try:
+                    chunk, cursor = self.session.location_medias_v1_chunk(location_pk=location, max_amount=amount, tab_key=tab_key, max_id=max_id)
+                    medias += [media for media in chunk if media.id not in identifiers_to_skip]
+                    max_id = cursor
+                except:
+                    break
 
         return medias
     
@@ -61,6 +71,11 @@ class Medias:
                     medias += [media for media in chunk if media.id not in identifiers_to_skip]
                     end_cursor = cursor
                 except:
-                    break
+                    try:
+                        chunk, cursor = self.session.user_medias_paginated_v1(user_id=user_id_int, amount=amount, end_cursor=end_cursor)
+                        medias += [media for media in chunk if media.id not in identifiers_to_skip]
+                        end_cursor = cursor
+                    except:
+                        break
 
             return medias
