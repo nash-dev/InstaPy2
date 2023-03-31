@@ -1,14 +1,16 @@
 from .utilities import LoggerConstants, Utility
-from .types import CommentType, LikeType
+from .types import CommentType, LikeType, PostType
 
 from datetime import datetime
+from pathlib import Path
 from random import choice, randint
 from typing import Union
 
+
 class InstaPy2(Utility):
-    def comment(self, amount: int, iterable: list[Union[int, None] | str], type: CommentType, **kwargs):
-        #self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
-        #exit(0)
+    def comment(self, amount: int, iterable: list[int | str | None], type: CommentType, **kwargs):
+        # self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
+        # exit(0)
 
         if 'do_after' in kwargs.keys():
             function = kwargs['do_after']()
@@ -44,11 +46,10 @@ class InstaPy2(Utility):
                             else:
                                 pass
                         self.do_after(function=function)
-                        
 
-    def like(self, amount: int, iterable: list[Union[int, None] | str], type: LikeType, **kwargs):
-        #self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
-        #exit(0)
+    def like(self, amount: int, iterable: list[int | str | None], type: LikeType, **kwargs):
+        # self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
+        # exit(0)
 
         if 'do_after' in kwargs.keys():
             function = kwargs['do_after']()
@@ -137,3 +138,16 @@ class InstaPy2(Utility):
                                 else:
                                     pass
                             self.do_after(function=function)
+
+    def post(self, type: PostType, path: Path | None, caption: str | None):
+        match type:
+            case PostType.LOCAL:
+                if path is None or caption is None:
+                    self.logger.error(message='No image path or caption has been entered for the argument(s) \'path\' or \'caption\'.')
+                else:
+                    try:
+                        self.session.photo_upload(path=path, caption=caption)
+                    except:
+                        self.logger.error(message='Failed to upload photo.')
+            case PostType.REMOTE:
+                print('Remote is not supported yet.')

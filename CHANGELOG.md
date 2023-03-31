@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [WIP]
-## [0.0.30] - 2023-01-13
+## [0.0.30] - 2023-03-31
 > Below is a minimal changelog. More changes have been made but they aren't worth detailing.
 ### Added
 - Added new authentication, logging, persistence and utility classes.
@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - **TODO**
         - Improve handling of previously interacted with media.
 - Improved error handling of all crash-prone functions.
+- Changed how posting media is handled with local being added initially.
 
 ### Fixed
 - Fixed an issue where `limitations.is_account_appropriate` would not return the correct value.
