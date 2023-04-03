@@ -2,9 +2,11 @@ from .utilities import LoggerConstants, Utility
 from .types import CommentType, LikeType, PostType
 
 from datetime import datetime
+from os import getcwd, sep
 from pathlib import Path
 from random import choice, randint
-from typing import Union
+from requests import get
+from urllib.request import urlretrieve
 
 
 class InstaPy2(Utility):
@@ -139,7 +141,7 @@ class InstaPy2(Utility):
                                     pass
                             self.do_after(function=function)
 
-    def post(self, type: PostType, path: Path | None, caption: str | None):
+    def post(self, type: PostType, path: Path | None = None, caption: str = None, **kwargs):
         match type:
             case PostType.LOCAL:
                 if path is None or caption is None:
@@ -149,5 +151,33 @@ class InstaPy2(Utility):
                         self.session.photo_upload(path=path, caption=caption)
                     except:
                         self.logger.error(message='Failed to upload photo.')
-            case PostType.REMOTE:
-                print('Remote is not supported yet.')
+            case PostType.PEXELS:
+                if any(key not in ['api_key', 'caption', 'query'] for key in kwargs.keys()):
+                    self.logger.error(message='No api_key, caption or query entered for argument(s) \'api_key\', \'caption\' or \'query\'.')
+                else:
+                    query = kwargs['query']
+                    json_data = get(url=f'https://api.pexels.com/v1/search?query={query}&page=1&per_page=1', headers={'Authorization' : kwargs['api_key']}).json()
+
+                    if 'photos' not in json_data:
+                        self.logger.error(message='No photos could be found for the entered query.')
+                    else:
+                        photo = json_data['photos'][0]
+                        # id = photo['id'] # save this using persistence
+                        url = photo['src']['original']
+                        file_path, _ = urlretrieve(url=url, filename=getcwd() + sep + 'files' + sep + 'image.png')
+                        self.session.photo_upload(path=Path(file_path), caption=caption)
+            case PostType.UNSPLASH:
+                if any(key not in ['api_key', 'caption', 'query'] for key in kwargs.keys()):
+                    self.logger.error(message='No api_key, caption or query entered for argument(s) \'api_key\', \'caption\' or \'query\'.')
+                else:
+                    query = kwargs['query']
+                    json_data = get(url=f'https://api.unsplash.com/search/photos?query={query}&page=1&per_page=1', headers={'Authorization' : 'Client-ID ' + kwargs['api_key']}).json()
+
+                    if 'results' not in json_data:
+                        self.logger.error(message='No photos could be found for the entered query.')
+                    else:
+                        photo = json_data['results'][0]
+                        # id = photo['id'] # save this using persistence
+                        url = photo['urls']['regular']
+                        file_path, _ = urlretrieve(url=url, filename=getcwd() + sep + 'files' + sep + 'image.png')
+                        self.session.photo_upload(path=Path(file_path), caption=caption)
