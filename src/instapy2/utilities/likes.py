@@ -14,13 +14,11 @@ class LikesUtility:
         self.enabled = data['enabled'] or False
         self.percentage = data['percentage'] or 0
 
-
     def set_enabled(self, enabled: bool):
         self.enabled = enabled
 
     def set_percentage(self, percentage: int):
         self.percentage = percentage
-
 
     def like(self, media: Media) -> bool:
         try:

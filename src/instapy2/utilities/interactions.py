@@ -4,9 +4,9 @@ from typing import Dict
 
 class InteractionsUtility:
     def __init__(self):
-        self.amount = 10
-        self.enabled = True
-        self.percentage = 100
+        self.amount = 0
+        self.enabled = False
+        self.percentage = 0
         self.randomize = False
 
     def from_json(self, data: Dict):
@@ -14,7 +14,6 @@ class InteractionsUtility:
         self.enabled = data['enabled'] or False
         self.percentage = data['percentage'] or 0
         self.randomize = data['randomize'] or False
-
 
     def set_amount(self, amount: int):
         self.amount = amount
