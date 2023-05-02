@@ -1,3 +1,64 @@
+<<<<<<< HEAD
+from .utilities import LoggerConstants, Utility
+from .types import CommentType, LikeType, PostType
+
+from datetime import datetime
+from os import getcwd, sep
+from pathlib import Path
+from random import choice, randint
+from requests import get
+from urllib.request import urlretrieve
+
+
+class InstaPy2(Utility):
+    def comment(self, amount: int, iterable: list[int | str | None], type: CommentType, **kwargs):
+        # self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
+        # exit(0)
+
+        if 'do_after' in kwargs.keys():
+            function = kwargs['do_after']()
+        else:
+            function = self.nop()
+
+        match type:
+            case CommentType.HASHTAG:
+                for elem in iterable:
+                    hashtag = str(elem)
+
+                    identifiers = self.persistence.all_identifiers(table='medias_comments_hashtag')
+                    medias = self.medias.get_medias_for_hashtag(amount=amount, hashtag=hashtag, identifiers_to_skip=identifiers)
+
+                    for media in medias:
+                        if not self.is_media_validated_for_interaction(media=media):
+                            self.logger.error(message=LoggerConstants.MEDIA_INVALID)
+                        else:
+                            self.logger.info(message=LoggerConstants.MEDIA_VALID)
+                            if not self.persistence.identifier_exists(table='medias_comments_hashtag', identifier=media.id):
+                                if not randint(a=0, b=100) <= self.comments.percentage:
+                                    self.logger.error(message=LoggerConstants.PERCENTAGE_OUT_OF_BOUNDS)
+                                else:
+                                    try:
+                                        commented = self.session.media_comment(media_id=media.id, text=choice(seq=self.comments.comments)) is not None
+                                        if not commented:
+                                            self.logger.error(message=LoggerConstants.MEDIA_COMMENT_FAIL)
+                                        else:
+                                            self.persistence.insert_identifier(table='medias_comments_hashtag', identifier=media.id, timestamp=datetime.now())
+                                            self.logger.info(message=LoggerConstants.MEDIA_COMMENT_SUCCESS)
+                                    except:
+                                        self.logger.error(message=LoggerConstants.MEDIA_COMMENT_FAIL)
+                            else:
+                                pass
+                        self.do_after(function=function)
+
+    def like(self, amount: int, iterable: list[int | str | None], type: LikeType, **kwargs):
+        # self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
+        # exit(0)
+
+        if 'do_after' in kwargs.keys():
+            function = kwargs['do_after']()
+        else:
+            function = self.nop()
+=======
 from .instapy2_base import InstaPy2Base
 
 from .persistence import sqlinterface
@@ -19,6 +80,7 @@ class InstaPy2(InstaPy2Base):
     def comment(self, amount: int = 50, iterable: List[Union[int, str]] = [], type: CommentType = CommentType.Locations, **kwargs):
         randomize_media = kwargs['randomize_media'] if 'randomize_media' in kwargs.keys() else False
         skip_top = kwargs['skip_top'] if 'skip_top' in kwargs.keys() else True
+>>>>>>> main
 
         match type:
             case CommentType.Locations:
@@ -26,6 +88,28 @@ class InstaPy2(InstaPy2Base):
                     medias = self.configuration.media.medias_location(amount=amount, location=int(location), randomize_media=randomize_media, skip_top=skip_top)
 
                     for media in medias:
+<<<<<<< HEAD
+                        if not self.is_media_validated_for_interaction(media=media):
+                            self.logger.error(message=LoggerConstants.MEDIA_INVALID)
+                        else:
+                            self.logger.info(message=LoggerConstants.MEDIA_VALID)
+                            if not self.persistence.identifier_exists(table='medias_likes_hashtag', identifier=media.id):
+                                try:
+                                    liked = self.session.media_like(media_id=media.id)
+                                    if not liked:
+                                        self.logger.error(message=LoggerConstants.MEDIA_LIKE_FAIL)
+                                    else:
+                                        self.persistence.insert_identifier(table='medias_likes_hashtag', identifier=media.id, timestamp=datetime.now())
+                                        self.logger.info(message=LoggerConstants.MEDIA_LIKE_SUCCESS)
+                                except:
+                                    self.logger.error(message=LoggerConstants.MEDIA_LIKE_FAIL)
+                            else:
+                                pass
+                        self.do_after(function=function)
+            case LikeType.LOCATION:
+                for elem in iterable:
+                    location = self.get_pk(query=input('Enter a location name (eg: Bondi Beach, New South Wales): ')) if elem is None else int(elem)
+=======
                         if self.configuration.media.validated_for_interaction(media=media):
                             commenting = random.randint(a=0, b=100) <= self.configuration.comments.percentage
                             following = random.randint(a=0, b=100) <= self.configuration.follows.percentage
@@ -71,6 +155,7 @@ class InstaPy2(InstaPy2Base):
                                     break
                         else:
                             pass
+>>>>>>> main
 
                     self.follow(amount=amount, iterable=usernames, type=FollowType.Users)
             case FollowType.Likers:
@@ -92,6 +177,29 @@ class InstaPy2(InstaPy2Base):
                     else:
                         pass
 
+<<<<<<< HEAD
+                        for media in medias:
+                            if not self.is_media_validated_for_interaction(media=media):
+                                self.logger.error(message=LoggerConstants.MEDIA_INVALID)
+                            else:
+                                self.logger.info(message=LoggerConstants.MEDIA_VALID)
+                                if not self.persistence.identifier_exists(table='medias_likes_location', identifier=media.id):
+                                    try:
+                                        liked = self.session.media_like(media_id=media.id)
+                                        if not liked:
+                                            self.logger.error(message=LoggerConstants.MEDIA_LIKE_FAIL)
+                                        else:
+                                            self.persistence.insert_identifier(table='medias_likes_location', identifier=media.id, timestamp=datetime.now())
+                                            self.logger.info(message=LoggerConstants.MEDIA_LIKE_SUCCESS)
+                                    except:
+                                        self.logger.error(message=LoggerConstants.MEDIA_LIKE_FAIL)
+                                else:
+                                    pass
+                            self.do_after(function=function)
+            case LikeType.USER:
+                for elem in iterable:
+                    username = str(elem)
+=======
                 self.follow(amount=amount, iterable=usernames, type=FollowType.Users)
             case FollowType.Locations:
                 for location in iterable:
@@ -350,6 +458,7 @@ class InstaPy2(InstaPy2Base):
                                             commented_count += 1
                                     except Exception as error:
                                         print(f'[ERROR]: {error}.')
+>>>>>>> main
 
                 if following: # what is dont_follow_inap_post?
                     followed = self.configuration.follows.follow(user=int(self.session.user_id_from_username(username=username)))
@@ -399,6 +508,71 @@ class InstaPy2(InstaPy2Base):
                         print(response.json())
                         photo = response.json()['urls']['regular']
                     else:
+<<<<<<< HEAD
+                        for media in medias:
+                            if not self.is_media_validated_for_interaction(media=media):
+                                self.logger.error(message=LoggerConstants.MEDIA_INVALID)
+                            else:
+                                self.logger.info(message=LoggerConstants.MEDIA_VALID)
+                                if not self.persistence.identifier_exists(table='medias_likes_user', identifier=media.id):
+                                    try:
+                                        liked = self.session.media_like(media_id=media.id)
+                                        if not liked:
+                                            self.logger.error(message=LoggerConstants.MEDIA_LIKE_FAIL)
+                                        else:
+                                            self.persistence.insert_identifier(table='medias_likes_user', identifier=media.id, timestamp=datetime.now())
+                                            self.logger.info(message=LoggerConstants.MEDIA_LIKE_SUCCESS)
+                                    except:
+                                        self.logger.error(message=LoggerConstants.MEDIA_LIKE_FAIL)
+                                else:
+                                    pass
+                            self.do_after(function=function)
+
+    def post(self, type: PostType, path: Path | None = None, caption: str = None, **kwargs):
+        match type:
+            case PostType.LOCAL:
+                if path is None or caption is None:
+                    self.logger.error(message='No image path or caption has been entered for the argument(s) \'path\' or \'caption\'.')
+                else:
+                    try:
+                        self.session.photo_upload(path=path, caption=caption)
+                    except:
+                        self.logger.error(message='Failed to upload photo.')
+            case PostType.PEXELS:
+                if any(key not in ['api_key', 'caption', 'query'] for key in kwargs.keys()):
+                    self.logger.error(message='No api_key, caption or query entered for argument(s) \'api_key\', \'caption\' or \'query\'.')
+                else:
+                    query = kwargs['query']
+                    json_data = get(url=f'https://api.pexels.com/v1/search?query={query}&page=1&per_page=1', headers={'Authorization' : kwargs['api_key']}).json()
+
+                    if 'photos' not in json_data:
+                        self.logger.error(message='No photos could be found for the entered query.')
+                    else:
+                        photo = json_data['photos'][0]
+                        # id = photo['id'] # save this using persistence
+                        url = photo['src']['original']
+                        file_path, _ = urlretrieve(url=url, filename=getcwd() + sep + 'files' + sep + 'image.png')
+                        self.session.photo_upload(path=Path(file_path), caption=caption)
+            case PostType.UNSPLASH:
+                if any(key not in ['api_key', 'caption', 'query'] for key in kwargs.keys()):
+                    self.logger.error(message='No api_key, caption or query entered for argument(s) \'api_key\', \'caption\' or \'query\'.')
+                else:
+                    query = kwargs['query']
+                    json_data = get(url=f'https://api.unsplash.com/search/photos?query={query}&page=1&per_page=1', headers={'Authorization' : 'Client-ID ' + kwargs['api_key']}).json()
+
+                    if 'results' not in json_data:
+                        self.logger.error(message='No photos could be found for the entered query.')
+                    else:
+                        photo = json_data['results'][0]
+                        # id = photo['id'] # save this using persistence
+                        url = photo['urls']['regular']
+                        file_path, _ = urlretrieve(url=url, filename=getcwd() + sep + 'files' + sep + 'image.png')
+                        self.session.photo_upload(path=Path(file_path), caption=caption)
+
+    def unfollow(self, amount: int):
+        followers = self.session.user_followers(user_id=self.session.user_id, amount=amount)
+        [self.session.user_unfollow(user_id=user_id) for user_id in followers.keys()]
+=======
                         photo = choice(seq=response.json()['results'])['urls']['regular']
                     
                     if photo is not None:
@@ -410,3 +584,4 @@ class InstaPy2(InstaPy2Base):
                         remove(path=unsplash_path)
             case _:
                 print('[ERROR]: No `type` was provided.')
+>>>>>>> main

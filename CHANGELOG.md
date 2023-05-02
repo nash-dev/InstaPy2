@@ -5,6 +5,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [WIP]
+<<<<<<< HEAD
+## [0.0.30] - 2023-03-31
+> Below is a minimal changelog. More changes have been made but they aren't worth detailing.
+### Added
+- Added new authentication, logging, persistence and utility classes.
+    - Added timestamp to persistence for future features.
+- Added new comment function with support for hashtags.
+- Added new like function with support for hashtags, locations and usernames.
+
+### Changed
+- Uppercased all enums.
+- Improved media interaction validation function.
+    - **TODO**
+        - Add new validation functions when implemented.
+- Improved media obtaining function.
+    - **TODO**
+        - Improve handling of previously interacted with media.
+- Improved error handling of all crash-prone functions.
+- Changed how posting media is handled with local being added initially.
+=======
 ## [0.0.28] - 2022-12-17
 ### Added
 - Added support for Pexels.
@@ -18,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added basic limitations support.
     - `session.configuration.limitations`.
 - Added new function to load a configuration from a file.
+>>>>>>> main
 
 ### Fixed
 - Fixed all type checking issues displayed in VS Code.
