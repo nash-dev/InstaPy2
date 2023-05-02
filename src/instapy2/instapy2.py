@@ -181,3 +181,7 @@ class InstaPy2(Utility):
                         url = photo['urls']['regular']
                         file_path, _ = urlretrieve(url=url, filename=getcwd() + sep + 'files' + sep + 'image.png')
                         self.session.photo_upload(path=Path(file_path), caption=caption)
+
+    def unfollow(self, amount: int):
+        followers = self.session.user_followers(user_id=self.session.user_id, amount=amount)
+        [self.session.user_unfollow(user_id=user_id) for user_id in followers.keys()]
