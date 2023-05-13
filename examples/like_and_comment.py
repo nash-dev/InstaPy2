@@ -6,10 +6,10 @@ session.login(username='', password='')
 
 session.configuration.comments.set_enabled(enabled=True)
 session.configuration.comments.set_percentage(percentage=75)
-session.configuration.comments.set_comments(comments=[
-    'This is a comment',
-    'This is another comment',
-    'This is a comment that will tag the author of the post @{}'
+session.configuration.comments.set_com61ments(comments=[
+    'Yes i am the english comment you been looking for',
+    'Good stuff',
+    'Im here to comment @{}'
 ])
 
-session.like(amount=10, iterable=['christmas'], type=LikeType.Tags)
+session.like(amount=10, iterable=['fashion'], type=LikeType.Tags)
