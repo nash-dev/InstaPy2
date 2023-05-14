@@ -7,6 +7,9 @@ class Persistence:
     defaults = {
         "medias_comments_hashtag": ["id", "timestamp"],
         "medias_likes_hashtag": ["id", "timestamp"],
+        "medias_likes_location": ["id", "timestamp"],
+        "medias_likes_user": ["id", "timestamp"],
+        "stories_likes_user": ["id", "timestamp"],
     }
 
     def __open(self) -> Connection:
