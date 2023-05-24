@@ -19,7 +19,7 @@ class Utility(Authentication):
                 selection_string += f", {city}"
             if zip is not None and zip != "":
                 selection_string += f", {zip}"
-            self.logger.info(message=f"[INFO]: {index + 1}: {selection_string}")
+            self.logger.info(message=f"{index + 1}: {selection_string}")
 
         selection = int(
             input(f"Enter the index for the correct location (1-{len(place_tuple)}): ")
@@ -61,7 +61,8 @@ class Utility(Authentication):
                         return True
 
     def do_after(self, function):
-        function()
+        if function is not None:
+            function()
 
     def nop(self):
         pass

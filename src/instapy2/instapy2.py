@@ -16,11 +16,6 @@ class InstaPy2(Utility):
         # self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
         # exit(0)
 
-        if "do_after" in kwargs.keys():
-            function = kwargs["do_after"]()
-        else:
-            function = self.nop()
-
         match type:
             case CommentType.HASHTAG:
                 for elem in iterable:
@@ -46,45 +41,34 @@ class InstaPy2(Utility):
                                         message=LoggerConstants.PERCENTAGE_OUT_OF_BOUNDS
                                     )
                                 else:
-                                    try:
-                                        commented = (
-                                            self.session.media_comment(
-                                                media_id=media.id,
-                                                text=choice(seq=self.comments.comments),
-                                            )
-                                            is not None
+                                    commented = (
+                                        self.session.media_comment(
+                                            media_id=media.id,
+                                            text=choice(seq=self.comments.comments),
                                         )
-                                        if not commented:
-                                            self.logger.error(
-                                                message=LoggerConstants.MEDIA_COMMENT_FAIL
-                                            )
-                                        else:
-                                            self.persistence.insert_identifier(
-                                                table="medias_comments_hashtag",
-                                                identifier=media.id,
-                                                timestamp=datetime.now(),
-                                            )
-                                            self.logger.info(
-                                                message=LoggerConstants.MEDIA_COMMENT_SUCCESS
-                                            )
-                                    except:
+                                        is not None
+                                    )
+                                    if not commented:
                                         self.logger.error(
                                             message=LoggerConstants.MEDIA_COMMENT_FAIL
                                         )
+                                    else:
+                                        self.persistence.insert_identifier(
+                                            table="medias_comments_hashtag",
+                                            identifier=media.id,
+                                            timestamp=datetime.now(),
+                                        )
+                                        self.logger.info(
+                                            message=LoggerConstants.MEDIA_COMMENT_SUCCESS
+                                        )
                             else:
                                 pass
-                        self.do_after(function=function)
 
     def like(
         self, amount: int, iterable: list[int | str | None], type: LikeType, **kwargs
     ):
         # self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
         # exit(0)
-
-        if "do_after" in kwargs.keys():
-            function = kwargs["do_after"]()
-        else:
-            function = self.nop()
 
         match type:
             case LikeType.HASHTAG:
@@ -106,39 +90,28 @@ class InstaPy2(Utility):
                             if not self.persistence.identifier_exists(
                                 table="medias_likes_hashtag", identifier=media.id
                             ):
-                                try:
-                                    liked = self.session.media_like(media_id=media.id)
-                                    if not liked:
-                                        self.logger.error(
-                                            message=LoggerConstants.MEDIA_LIKE_FAIL
-                                        )
-                                    else:
-                                        self.persistence.insert_identifier(
-                                            table="medias_likes_hashtag",
-                                            identifier=media.id,
-                                            timestamp=datetime.now(),
-                                        )
-                                        self.logger.info(
-                                            message=LoggerConstants.MEDIA_LIKE_SUCCESS
-                                        )
-                                except:
+                                liked = self.session.media_like(media_id=media.id)
+                                if not liked:
                                     self.logger.error(
                                         message=LoggerConstants.MEDIA_LIKE_FAIL
                                     )
+                                else:
+                                    self.persistence.insert_identifier(
+                                        table="medias_likes_hashtag",
+                                        identifier=media.id,
+                                        timestamp=datetime.now(),
+                                    )
+                                    self.logger.info(
+                                        message=LoggerConstants.MEDIA_LIKE_SUCCESS
+                                    )
                             else:
                                 pass
-                        self.do_after(function=function)
+
             case LikeType.LOCATION:
+                self.logger.error(message="Liking by location is currently broken")
+                """
                 for elem in iterable:
-                    location = (
-                        self.get_pk(
-                            query=input(
-                                "Enter a location name (eg: Bondi Beach, New South Wales): "
-                            )
-                        )
-                        if elem is None
-                        else int(elem)
-                    )
+                    location = self.get_pk(query=input("Enter a location name (eg: Bondi Beach, New South Wales): ")) if elem is None else int(elem)
 
                     if location is None:
                         self.logger.error(
@@ -151,9 +124,10 @@ class InstaPy2(Utility):
                         medias = self.medias.get_medias_for_location(
                             amount=amount,
                             location=location,
-                            identifiers_to_skip=identifiers,
+                            identifiers_to_skip=[],
                         )
 
+                        self.logger.info(message=f'{[media.id + ", " for media in medias]}')
                         for media in medias:
                             if not self.is_media_validated_for_interaction(media=media):
                                 self.logger.error(message=LoggerConstants.MEDIA_INVALID)
@@ -162,30 +136,25 @@ class InstaPy2(Utility):
                                 if not self.persistence.identifier_exists(
                                     table="medias_likes_location", identifier=media.id
                                 ):
-                                    try:
-                                        liked = self.session.media_like(
-                                            media_id=media.id
-                                        )
-                                        if not liked:
-                                            self.logger.error(
-                                                message=LoggerConstants.MEDIA_LIKE_FAIL
-                                            )
-                                        else:
-                                            self.persistence.insert_identifier(
-                                                table="medias_likes_location",
-                                                identifier=media.id,
-                                                timestamp=datetime.now(),
-                                            )
-                                            self.logger.info(
-                                                message=LoggerConstants.MEDIA_LIKE_SUCCESS
-                                            )
-                                    except:
+                                    liked = self.session.media_like(
+                                        media_id=media.id
+                                    )
+                                    if not liked:
                                         self.logger.error(
                                             message=LoggerConstants.MEDIA_LIKE_FAIL
                                         )
+                                    else:
+                                        self.persistence.insert_identifier(
+                                            table="medias_likes_location",
+                                            identifier=media.id,
+                                            timestamp=datetime.now(),
+                                        )
+                                        self.logger.info(
+                                            message=LoggerConstants.MEDIA_LIKE_SUCCESS
+                                        )
                                 else:
                                     pass
-                            self.do_after(function=function)
+                """
             case LikeType.USER:
                 for elem in iterable:
                     username = str(elem)
@@ -212,30 +181,25 @@ class InstaPy2(Utility):
                                 if not self.persistence.identifier_exists(
                                     table="medias_likes_user", identifier=media.id
                                 ):
-                                    try:
-                                        liked = self.session.media_like(
-                                            media_id=media.id
-                                        )
-                                        if not liked:
-                                            self.logger.error(
-                                                message=LoggerConstants.MEDIA_LIKE_FAIL
-                                            )
-                                        else:
-                                            self.persistence.insert_identifier(
-                                                table="medias_likes_user",
-                                                identifier=media.id,
-                                                timestamp=datetime.now(),
-                                            )
-                                            self.logger.info(
-                                                message=LoggerConstants.MEDIA_LIKE_SUCCESS
-                                            )
-                                    except:
+                                    liked = self.session.media_like(
+                                        media_id=media.id
+                                    )
+                                    if not liked:
                                         self.logger.error(
                                             message=LoggerConstants.MEDIA_LIKE_FAIL
                                         )
+                                    else:
+                                        self.persistence.insert_identifier(
+                                            table="medias_likes_user",
+                                            identifier=media.id,
+                                            timestamp=datetime.now(),
+                                        )
+                                        self.logger.info(
+                                            message=LoggerConstants.MEDIA_LIKE_SUCCESS
+                                        )
                                 else:
                                     pass
-                            self.do_after(function=function)
+
             case LikeType.STORY:
                 for elem in iterable:
                     username = str(elem)
@@ -261,30 +225,24 @@ class InstaPy2(Utility):
                                 if not self.persistence.identifier_exists(
                                     table="stories_likes_user", identifier=story.id
                                 ):
-                                    try:
-                                        liked = self.session.story_like(
-                                            story_id=story.id
-                                        )
-                                        if not liked:
-                                            self.logger.error(
-                                                message=LoggerConstants.STORY_LIKE_FAIL
-                                            )
-                                        else:
-                                            self.persistence.insert_identifier(
-                                                table="stories_likes_user",
-                                                identifier=story.id,
-                                                timestamp=datetime.now(),
-                                            )
-                                            self.logger.info(
-                                                message=LoggerConstants.STORY_LIKE_SUCCESS
-                                            )
-                                    except:
+                                    liked = self.session.story_like(
+                                        story_id=story.id
+                                    )
+                                    if not liked:
                                         self.logger.error(
                                             message=LoggerConstants.STORY_LIKE_FAIL
                                         )
+                                    else:
+                                        self.persistence.insert_identifier(
+                                            table="stories_likes_user",
+                                            identifier=story.id,
+                                            timestamp=datetime.now(),
+                                        )
+                                        self.logger.info(
+                                            message=LoggerConstants.STORY_LIKE_SUCCESS
+                                        )
                                 else:
                                     pass
-                            self.do_after(function=function)
 
     def post(
         self, type: PostType, path: Path | None = None, caption: str = "", **kwargs
@@ -300,6 +258,7 @@ class InstaPy2(Utility):
                         self.session.photo_upload(path=path, caption=caption)
                     except:
                         self.logger.error(message="Failed to upload photo.")
+
             case PostType.PEXELS:
                 if any(
                     key not in ["api_key", "caption", "query"] for key in kwargs.keys()
@@ -327,6 +286,7 @@ class InstaPy2(Utility):
                             filename=getcwd() + sep + "files" + sep + "image.png",
                         )
                         self.session.photo_upload(path=Path(file_path), caption=caption)
+
             case PostType.UNSPLASH:
                 if any(
                     key not in ["api_key", "caption", "query"] for key in kwargs.keys()

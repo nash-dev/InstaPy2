@@ -1,5 +1,5 @@
 from enum import StrEnum
-from logging import DEBUG, Formatter, getLogger, StreamHandler
+from logging import basicConfig, ERROR, INFO, error, info, StreamHandler
 
 
 class LoggerConstants(StrEnum):
@@ -22,31 +22,11 @@ class LoggerConstants(StrEnum):
 
 
 class Logger:
-    def __errorHandler(self) -> StreamHandler:
-        handler = StreamHandler()
-        handler.setFormatter(fmt=self.formatter)
-        handler.setLevel(level=DEBUG)
-
-        return handler
-
-    def __infoHandler(self) -> StreamHandler:
-        handler = StreamHandler()
-        handler.setFormatter(fmt=self.formatter)
-        handler.setLevel(level=DEBUG)
-
-        return handler
-
     def __init__(self):
-        self.formatter = Formatter(fmt="[%(levelname)s]: %(message)s")
-
-        self.error_logger = getLogger(name="error")
-        self.error_logger.addHandler(hdlr=self.__errorHandler())
-
-        self.info_logger = getLogger(name="info")
-        self.info_logger.addHandler(hdlr=self.__infoHandler())
+        basicConfig(format='[%(levelname)s]: %(message)s', level=INFO)
 
     def error(self, message: str):
-        self.error_logger.error(msg=message)
+        error(msg=message)
 
     def info(self, message: str):
-        self.info_logger.info(msg=message)
+        info(msg=message)

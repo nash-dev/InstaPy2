@@ -29,7 +29,7 @@ class Persistence:
     def all_identifiers(self, table: str) -> list[str]:
         cursor = self.__cursor()
 
-        tuples = cursor.execute(f"SELECT identifier from {table}").fetchall()
+        tuples = cursor.execute(f"SELECT id from {table}").fetchall()
         return [identifier for identifier, in tuples]
 
     def create_tables(self):
@@ -48,7 +48,7 @@ class Persistence:
 
         return (
             cursor.execute(
-                f"SELECT identifier FROM {table} WHERE identifier='{identifier}'"
+                f"SELECT id FROM {table} WHERE id='{identifier}'"
             ).fetchone()
             is not None
         )
@@ -61,7 +61,7 @@ class Persistence:
             (
                 identifier,
                 mktime(
-                    t=timestamp.timetuple(),
+                    timestamp.timetuple(),
                 ),
             ),
         )
