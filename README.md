@@ -4,7 +4,7 @@ Automation script for Instagram that *farms* comments, follows and likes.
 
 <span>
     <img src="https://img.shields.io/static/v1?label=Built%20with&message=Instagrapi&color=red"/>
-    <img src="https://img.shields.io/static/v1?label=Built%20with&message=Python%203.11.1&color=red"/>
+    <img src="https://img.shields.io/static/v1?label=Built%20with&message=Python%203.11.2&color=red"/>
     <a href="https://discord.gg/TY8pt8e5Xg" style="text-decoration: none; border: none; outline: 0;">
         <img src="https://img.shields.io/static/v1?label=Connect%20via&message=Discord&color=5865F2"/>
     </a>
@@ -27,12 +27,13 @@ Find all of the documentation in the link above.
 Find a variety of examples in the link above.
 
 ## Latest Changes
-> 25th November 2022
+### Rework Branch
+> 31st March 2023
 
-- Added ability to direct message users.
-    - See [CHANGELOG.md](CHANGELOG.md) for more information.
+- See [CHANGELOG.md](CHANGELOG.md) for more information.
 
 ## Previous Changes
+### Main Branch
 > 25th November 2022
 
 No changes have been made.

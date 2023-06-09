@@ -1,412 +1,322 @@
-from .instapy2_base import InstaPy2Base
+from .utilities import LoggerConstants, Utility
+from .types import CommentType, LikeType, PostType
 
-from .persistence import sqlinterface
-from .types import CommentType
-from .types import FollowType
-from .types import LikeType
-from .types import PostType
-# from .types import UnfollowType
-
-from os import getcwd, remove, sep
+from datetime import datetime
+from os import getcwd, sep
 from pathlib import Path
-from random import choice
+from random import choice, randint
 from requests import get
-from typing import List, Union
-
-import random
-
-class InstaPy2(InstaPy2Base):
-    def comment(self, amount: int = 50, iterable: List[Union[int, str]] = [], type: CommentType = CommentType.Locations, **kwargs):
-        randomize_media = kwargs['randomize_media'] if 'randomize_media' in kwargs.keys() else False
-        skip_top = kwargs['skip_top'] if 'skip_top' in kwargs.keys() else True
-
-        match type:
-            case CommentType.Locations:
-                for location in iterable:
-                    medias = self.configuration.media.medias_location(amount=amount, location=int(location), randomize_media=randomize_media, skip_top=skip_top)
-
-                    for media in medias:
-                        if self.configuration.media.validated_for_interaction(media=media):
-                            commenting = random.randint(a=0, b=100) <= self.configuration.comments.percentage
-                            following = random.randint(a=0, b=100) <= self.configuration.follows.percentage
-                            messaging = random.randint(a=0, b=100) <= self.configuration.messages.percentage
-
-                            if self.configuration.comments.enabled and commenting:
-                                _, _ = self.configuration.comments.comment(media=media, text=random.choice(seq=self.configuration.comments.comments))
-
-                            if self.configuration.follows.enabled and following:
-                                self.follow(iterable=[media.user.username if media.user.username is not None else ''], type=FollowType.Users)
-
-                            if self.configuration.messages.enabled and messaging:
-                                _, _ = self.configuration.messages.message(user=media.user, text=random.choice(seq=self.configuration.messages.messages))
-            case _:
-                print('[ERROR]: No `type` was provided.')
+from urllib.request import urlretrieve
 
 
-    def follow(self, amount: int = 50, iterable: List[Union[int, str]] = [], type: FollowType = FollowType.Commenters, **kwargs):
-        randomize_media = kwargs['randomize_media'] if 'randomize_media' in kwargs.keys() else False
-        randomize_tags = kwargs['randomize_tags'] if 'randomize_tags' in kwargs.keys() else False
-        skip_top = kwargs['skip_top'] if 'skip_top' in kwargs.keys() else True
-
-        if not isinstance(iterable, list):
-            iterable = [iterable]
+class InstaPy2(Utility):
+    def comment(
+        self, amount: int, iterable: list[int | str | None], type: CommentType, **kwargs
+    ):
+        # self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
+        # exit(0)
 
         match type:
-            case FollowType.Commenters:
-                for username in iterable:
-                    medias = self.configuration.media.medias_username(amount=amount, username=str(username), randomize_media=randomize_media)
+            case CommentType.HASHTAG:
+                for elem in iterable:
+                    hashtag = str(elem)
 
-                    usernames = []
-                    found_amount = False
+                    identifiers = self.persistence.all_identifiers(
+                        table="medias_comments_hashtag"
+                    )
+                    medias = self.medias.get_medias_for_hashtag(
+                        amount=amount, hashtag=hashtag, identifiers_to_skip=identifiers
+                    )
+
                     for media in medias:
-                        if self.configuration.media.validated_for_interaction(media=media):
-                            if found_amount:
-                                break
-
-                            for comment in self.session.media_comments(media_id=media.id):
-                                if comment.user.username not in usernames and comment.user.username != self.session.username and len(usernames) < amount:
-                                    usernames.append(comment.user.username)
+                        if not self.is_media_validated_for_interaction(media=media):
+                            self.logger.error(message=LoggerConstants.MEDIA_INVALID)
+                        else:
+                            self.logger.info(message=LoggerConstants.MEDIA_VALID)
+                            if not self.persistence.identifier_exists(
+                                table="medias_comments_hashtag", identifier=media.id
+                            ):
+                                if not randint(a=0, b=100) <= self.comments.percentage:
+                                    self.logger.error(
+                                        message=LoggerConstants.PERCENTAGE_OUT_OF_BOUNDS
+                                    )
                                 else:
-                                    found_amount = True
-                                    break
-                        else:
-                            pass
-
-                    self.follow(amount=amount, iterable=usernames, type=FollowType.Users)
-            case FollowType.Likers:
-                medias = self.configuration.media.medias_username(amount=amount, username=str(self.session.username), randomize_media=randomize_media)
-
-                usernames = []
-                found_amount = False
-                for media in medias:
-                    if self.configuration.media.validated_for_interaction(media=media):
-                        if found_amount:
-                            break
-
-                        for liker in self.session.media_likers(media_pk=media.pk):
-                            if liker.username not in usernames and len(usernames) < amount:
-                                usernames.append(liker.username)
+                                    commented = (
+                                        self.session.media_comment(
+                                            media_id=media.id,
+                                            text=choice(seq=self.comments.comments),
+                                        )
+                                        is not None
+                                    )
+                                    if not commented:
+                                        self.logger.error(
+                                            message=LoggerConstants.MEDIA_COMMENT_FAIL
+                                        )
+                                    else:
+                                        self.persistence.insert_identifier(
+                                            table="medias_comments_hashtag",
+                                            identifier=media.id,
+                                            timestamp=datetime.now(),
+                                        )
+                                        self.logger.info(
+                                            message=LoggerConstants.MEDIA_COMMENT_SUCCESS
+                                        )
                             else:
-                                found_amount = True
-                                break
+                                pass
+
+    def like(
+        self, amount: int, iterable: list[int | str | None], type: LikeType, **kwargs
+    ):
+        # self.logger.error(message='THIS IS A WIP REWORK. PLEASE USE `MAIN`.')
+        # exit(0)
+
+        match type:
+            case LikeType.HASHTAG:
+                for element in iterable:
+                    hashtag = str(element)
+
+                    identifiers = self.persistence.all_identifiers(
+                        table="medias_likes_hashtag"
+                    )
+                    medias = self.medias.get_medias_for_hashtag(
+                        amount=amount, hashtag=hashtag, identifiers_to_skip=identifiers
+                    )
+
+                    for media in medias:
+                        if not self.is_media_validated_for_interaction(media=media):
+                            self.logger.error(message=LoggerConstants.MEDIA_INVALID)
+                        else:
+                            self.logger.info(message=LoggerConstants.MEDIA_VALID)
+                            if not self.persistence.identifier_exists(
+                                table="medias_likes_hashtag", identifier=media.id
+                            ):
+                                liked = self.session.media_like(media_id=media.id)
+                                if not liked:
+                                    self.logger.error(
+                                        message=LoggerConstants.MEDIA_LIKE_FAIL
+                                    )
+                                else:
+                                    self.persistence.insert_identifier(
+                                        table="medias_likes_hashtag",
+                                        identifier=media.id,
+                                        timestamp=datetime.now(),
+                                    )
+                                    self.logger.info(
+                                        message=LoggerConstants.MEDIA_LIKE_SUCCESS
+                                    )
+                            else:
+                                pass
+
+            case LikeType.LOCATION:
+                self.logger.error(message="Liking by location is currently broken")
+                """
+                for elem in iterable:
+                    location = self.get_pk(query=input("Enter a location name (eg: Bondi Beach, New South Wales): ")) if elem is None else int(elem)
+
+                    if location is None:
+                        self.logger.error(
+                            message=f"An error occurred while scraping media for location: {location}."
+                        )
                     else:
-                        pass
+                        identifiers = self.persistence.all_identifiers(
+                            "medias_likes_location"
+                        )
+                        medias = self.medias.get_medias_for_location(
+                            amount=amount,
+                            location=location,
+                            identifiers_to_skip=[],
+                        )
 
-                self.follow(amount=amount, iterable=usernames, type=FollowType.Users)
-            case FollowType.Locations:
-                for location in iterable:
-                    medias = self.configuration.media.medias_location(amount=amount, location=int(location), randomize_media=randomize_media, skip_top=skip_top)
-
-                    usernames = []
-                    found_amount = False
-                    for media in medias:
-                        if self.configuration.media.validated_for_interaction(media=media):
-                            if found_amount:
-                                break
-
-                            if media.user.username not in usernames and media.user.username != self.session.username and len(usernames) < amount:
-                                usernames.append(media.user.username)
+                        self.logger.info(message=f'{[media.id + ", " for media in medias]}')
+                        for media in medias:
+                            if not self.is_media_validated_for_interaction(media=media):
+                                self.logger.error(message=LoggerConstants.MEDIA_INVALID)
                             else:
-                                found_amount = True
-                                break
-                        else:
-                            pass
-                        
-                    self.follow(amount=amount, iterable=usernames, type=FollowType.Users)
-            case FollowType.Tags:
-                tags = [str(tag).strip() for tag in iterable]
+                                self.logger.info(message=LoggerConstants.MEDIA_VALID)
+                                if not self.persistence.identifier_exists(
+                                    table="medias_likes_location", identifier=media.id
+                                ):
+                                    liked = self.session.media_like(
+                                        media_id=media.id
+                                    )
+                                    if not liked:
+                                        self.logger.error(
+                                            message=LoggerConstants.MEDIA_LIKE_FAIL
+                                        )
+                                    else:
+                                        self.persistence.insert_identifier(
+                                            table="medias_likes_location",
+                                            identifier=media.id,
+                                            timestamp=datetime.now(),
+                                        )
+                                        self.logger.info(
+                                            message=LoggerConstants.MEDIA_LIKE_SUCCESS
+                                        )
+                                else:
+                                    pass
+                """
+            case LikeType.USER:
+                for elem in iterable:
+                    username = str(elem)
 
-                if randomize_tags:
-                    random.shuffle(x=tags)
+                    identifiers = self.persistence.all_identifiers(
+                        table="medias_likes_user"
+                    )
+                    medias = self.medias.get_medias_for_user(
+                        amount=amount,
+                        username=username,
+                        identifiers_to_skip=identifiers,
+                    )
 
-                usernames = []
-                found_amount = False
-                for tag in tags:
-                    medias = self.configuration.media.medias_tag(amount=amount, tag=tag, randomize_media=randomize_media, skip_top=skip_top)
-
-                    for media in medias:
-                        if self.configuration.media.validated_for_interaction(media=media):
-                            if found_amount:
-                                break
-
-                            """random.randint(a=0, b=100) <= self.configuration.follows.percentage and"""
-                            if media.user.username not in usernames and len(usernames) < amount:
-                                usernames.append(media.user.username)
+                    if medias is None:
+                        self.logger.error(
+                            message=f"An error occurred while scraping media for user: {username}."
+                        )
+                    else:
+                        for media in medias:
+                            if not self.is_media_validated_for_interaction(media=media):
+                                self.logger.error(message=LoggerConstants.MEDIA_INVALID)
                             else:
-                                found_amount = True
-                                break
-                        else:
-                            pass
+                                self.logger.info(message=LoggerConstants.MEDIA_VALID)
+                                if not self.persistence.identifier_exists(
+                                    table="medias_likes_user", identifier=media.id
+                                ):
+                                    liked = self.session.media_like(
+                                        media_id=media.id
+                                    )
+                                    if not liked:
+                                        self.logger.error(
+                                            message=LoggerConstants.MEDIA_LIKE_FAIL
+                                        )
+                                    else:
+                                        self.persistence.insert_identifier(
+                                            table="medias_likes_user",
+                                            identifier=media.id,
+                                            timestamp=datetime.now(),
+                                        )
+                                        self.logger.info(
+                                            message=LoggerConstants.MEDIA_LIKE_SUCCESS
+                                        )
+                                else:
+                                    pass
 
-                self.follow(amount=amount, iterable=usernames, type=FollowType.Users)
-            case FollowType.Users:
-                followed_count = 0
+            case LikeType.STORY:
+                for elem in iterable:
+                    username = str(elem)
+                    user_id = self.session.user_id_from_username(username=username)
 
-                for username in iterable:
-                    user_id = self.session.user_id_from_username(username=str(username))
-                    following = self.session.user_friendship_v1(user_id=user_id).following
-                    messaging = random.randint(a=0, b=100) <= self.configuration.messages.percentage
+                    identifiers = self.persistence.all_identifiers(
+                        table="stories_likes_user"
+                    )
+                    stories = self.session.user_stories(
+                        user_id=int(user_id), amount=amount
+                    )
 
-                    did_follow = False
-                    if not following:
-                        _, did_follow = self.configuration.follows.follow(user=int(user_id))
+                    if stories is None:
+                        self.logger.error(
+                            message=f"An error occurred while scraping stories for user: {username}."
+                        )
+                    else:
+                        for story in stories:
+                            if not self.is_media_validated_for_interaction(media=story):
+                                self.logger.error(message=LoggerConstants.STORY_INVALID)
+                            else:
+                                self.logger.info(message=LoggerConstants.STORY_VALID)
+                                if not self.persistence.identifier_exists(
+                                    table="stories_likes_user", identifier=story.id
+                                ):
+                                    liked = self.session.story_like(
+                                        story_id=story.id
+                                    )
+                                    if not liked:
+                                        self.logger.error(
+                                            message=LoggerConstants.STORY_LIKE_FAIL
+                                        )
+                                    else:
+                                        self.persistence.insert_identifier(
+                                            table="stories_likes_user",
+                                            identifier=story.id,
+                                            timestamp=datetime.now(),
+                                        )
+                                        self.logger.info(
+                                            message=LoggerConstants.STORY_LIKE_SUCCESS
+                                        )
+                                else:
+                                    pass
 
-                    if self.configuration.messages.enabled and messaging:
-                        _, _ = self.configuration.messages.message(user=str(username), text=random.choice(seq=self.configuration.messages.messages))
-
-                    if did_follow:
-                        followed_count += 1
-
-                    interacting = random.randint(a=0, b=100) <= self.configuration.interactions.percentage
-                    if did_follow and self.configuration.interactions.enabled and interacting:
-                        self.interact_users(amount=self.configuration.interactions.amount, usernames=[str(username)], randomize_media=self.configuration.interactions.randomize)
-
-                print(f'[INFO]: Followed {followed_count} of {len(iterable)} users.')
-            case _:
-                print('[ERROR]: No `type` was provided.')
-    
-        
-    def like(self, amount: int = 50, iterable: List[Union[int, str]] = [], type: LikeType = LikeType.Feed, **kwargs):
-        """
-            Possible **kwargs
-                randomize_likes, randomize_media, randomize_tags, skip_top
-        """
-
-        randomize_likes = kwargs['randomize_likes'] if 'randomize_likes' in kwargs.keys() else False
-        randomize_media = kwargs['randomize_media'] if 'randomize_media' in kwargs.keys() else False
-        randomize_tags = kwargs['randomize_tags'] if 'randomize_tags' in kwargs.keys() else False
-        skip_top = kwargs['skip_top'] if 'skip_top' in kwargs.keys() else True
-
+    def post(
+        self, type: PostType, path: Path | None = None, caption: str = "", **kwargs
+    ):
         match type:
-            case LikeType.Feed:
-                if not isinstance(iterable, list):
-                    iterable = [iterable]
-
-                for username in iterable:
-                    medias = self.configuration.media.medias_username(amount=amount, username=str(username), randomize_media=randomize_media)
-
-                    for media in medias:
-                        if randomize_likes and random.choice([True, False]):
-                            pass
-                        else:
-                            if self.configuration.media.validated_for_interaction(media=media):
-                                liked = self.configuration.likes.like(media=media)
-                                if liked:
-                                    sqlinterface.insert_id(id=media.id)
-
-                                if self.configuration.comments.enabled_for_liked_media or liked:
-                                    commenting = random.randint(a=0, b=100) <= self.configuration.comments.percentage
-                                    following = random.randint(a=0, b=100) <= self.configuration.follows.percentage
-
-                                    if self.configuration.comments.enabled and commenting:
-                                        _, _ = self.configuration.comments.comment(media=media, text=random.choice(seq=self.configuration.comments.comments))
-
-                                    did_follow = False
-                                    if self.configuration.follows.enabled and following:
-                                        _, did_follow = self.configuration.follows.follow(user=media.user)
-
-                                    interacting = random.randint(a=0, b=100) <= self.configuration.interactions.percentage
-                                    if did_follow and self.configuration.interactions.enabled and interacting:
-                                        self.interact_users(amount=self.configuration.interactions.amount, usernames=[media.user.username if media.user.username is not None else ''], randomize_media=self.configuration.interactions.randomize)
-
-            case LikeType.Locations:
-                for location in iterable:
-                    medias = self.configuration.media.medias_location(amount=amount, location=int(location), randomize_media=randomize_media, skip_top=skip_top)
-
-                    for media in medias:
-                        if self.configuration.media.validated_for_interaction(media=media):
-                            liked = self.configuration.likes.like(media=media)
-
-                            if self.configuration.comments.enabled_for_liked_media or liked:
-                                commenting = random.randint(a=0, b=100) <= self.configuration.comments.percentage
-                                following = random.randint(a=0, b=100) <= self.configuration.follows.percentage
-
-                                if self.configuration.comments.enabled and commenting:
-                                    _, _ = self.configuration.comments.comment(media=media, text=random.choice(seq=self.configuration.comments.comments))
-
-                                if self.configuration.follows.enabled and following:
-                                    _, _ = self.configuration.follows.follow(user=media.user)
-            case LikeType.Tags:
-                tags = [str(tag).strip() for tag in iterable]
-
-                if randomize_tags:
-                    random.shuffle(x=tags)
-
-                for tag in tags:
-                    medias = self.configuration.media.medias_tag(amount=amount, tag=tag, randomize_media=randomize_media, skip_top=skip_top)
-
-                    for media in medias:
-                        if self.configuration.media.validated_for_interaction(media=media):
-                            liked = self.configuration.likes.like(media=media)
-                            if liked:
-                                sqlinterface.insert_id(id=media.id)
-
-                            if self.configuration.comments.enabled_for_liked_media or liked:
-                                commenting = random.randint(a=0, b=100) <= self.configuration.comments.percentage
-                                following = random.randint(a=0, b=100) <= self.configuration.follows.percentage
-
-                                if self.configuration.comments.enabled and commenting:
-                                    _, _ = self.configuration.comments.comment(media=media, text=random.choice(seq=self.configuration.comments.comments))
-
-                                did_follow = False
-                                if self.configuration.follows.enabled and following:
-                                    _, did_follow = self.configuration.follows.follow(user=media.user)
-
-                                interacting = random.randint(a=0, b=100) <= self.configuration.interactions.percentage
-                                if did_follow and self.configuration.interactions.enabled and interacting:
-                                    self.interact_users(amount=self.configuration.interactions.amount, usernames=[media.user.username if media.user.username is not None else ''], randomize_media=self.configuration.interactions.randomize)
-            case LikeType.Users:
-                if not isinstance(iterable, list):
-                    iterable = [iterable]
-
-                for username in iterable:
-                    medias = self.configuration.media.medias_username(amount=amount, username=str(username), randomize_media=randomize_media)
-
-                    for media in medias:
-                        if self.configuration.media.validated_for_interaction(media=media):
-                            liked = self.configuration.likes.like(media=media)
-
-                            if self.configuration.comments.enabled_for_liked_media or liked:
-                                commenting = random.randint(a=0, b=100) <= self.configuration.comments.percentage
-                                following = random.randint(a=0, b=100) <= self.configuration.follows.percentage
-                                messaging = random.randint(a=0, b=100) <= self.configuration.messages.percentage
-
-                                if self.configuration.comments.enabled and commenting:
-                                    _, _ = self.configuration.comments.comment(media=media, text=random.choice(seq=self.configuration.comments.comments))
-
-                                if self.configuration.follows.enabled and following:
-                                    _, _ = self.configuration.follows.follow(user=media.user)
-
-                                if self.configuration.messages.enabled and messaging:
-                                    _, _ = self.configuration.messages.message(user=media.user, text=random.choice(seq=self.configuration.messages.messages))
-            case _:
-                print('[ERROR]: No `type` was provided.')
-
-
-    """
-    def unfollow(self, amount: int = 10, iterable: List[str] = [], type: UnfollowType = UnfollowType.Users, **kwargs):
-        total_unfollowed = 0
-
-        randomize_usernames = kwargs['randomize_usernames'] if 'randomize_usernames' in kwargs.keys() else False
-        only_nonfollowers = kwargs['only_nonfollowers'] if 'only_nonfollowers' in kwargs.keys() else False
-
-        match type:
-            case UnfollowType.Users:
-                user_ids = []
-                if len(iterable) == 0:
-                    [user_ids.append(user_id) for user_id in self.session.user_following(user_id=self.session.user_id, amount=amount).keys() if self.session.username_from_user_id(user_id=user_id) not in self.configuration.people.friends_to_skip]
+            case PostType.LOCAL:
+                if path is None or caption is None:
+                    self.logger.error(
+                        message="No image path or caption has been entered for the argument(s) 'path' or 'caption'."
+                    )
                 else:
-                    [user_ids.append(self.session.user_id_from_username(username=username)) for username in iterable]
+                    try:
+                        self.session.photo_upload(path=path, caption=caption)
+                    except:
+                        self.logger.error(message="Failed to upload photo.")
 
-                if randomize_usernames:
-                    random.shuffle(x=user_ids)
+            case PostType.PEXELS:
+                if any(
+                    key not in ["api_key", "caption", "query"] for key in kwargs.keys()
+                ):
+                    self.logger.error(
+                        message="No api_key, caption or query entered for argument(s) 'api_key', 'caption' or 'query'."
+                    )
+                else:
+                    query = kwargs["query"]
+                    json_data = get(
+                        url=f"https://api.pexels.com/v1/search?query={query}&page=1&per_page=1",
+                        headers={"Authorization": kwargs["api_key"]},
+                    ).json()
 
-                for user_id in user_ids:
-                    if only_nonfollowers and not self.session.user_friendship_v1(user_id=user_id).followed_by:
-                        _, unfollowed = self.configuration.follows.unfollow(user_id=user_id, username=)
-                        if unfollowed:
-                            total_unfollowed += 1
-            case _:
-                print('[ERROR]: No `type` was provided.')
-        
-        print(f'[INFO]: Unfollowed {total_unfollowed} of {len(user_ids)} users.')
-    """
-
-
-    def interact_users(self, amount: int = 10, usernames: List[str] = [], randomize_media: bool = False):
-        if not isinstance(usernames, list):
-            usernames = [usernames]
-
-        commented_count = 0
-        followed_count = 0
-        liked_count = 0
-
-
-        for index, username in enumerate(iterable=usernames):
-            print(f'[INFO]: Username [{index + 1}/{len(usernames)}]')
-            print(f'[INFO]: {username}')
-
-            if username not in self.configuration.people.friends_to_skip:
-                medias = self.configuration.media.medias_username(amount=amount, username=username, randomize_media=randomize_media)
-
-                following = random.randint(0, 100) <= self.configuration.follows.percentage
-
-                for index, media in enumerate(iterable=medias):
-                    if self.configuration.media.validated_for_interaction(media=media):
-                        if index > 0:
-                            liking = random.randint(a=0, b=100) <= self.configuration.likes.percentage
-                            commenting = random.randint(a=0, b=100) <= self.configuration.comments.percentage
-
-                            if self.configuration.likes.enabled and liking:
-                                liked = self.configuration.likes.like(media=media)
-                                if liked:
-                                    liked_count += 1
-
-                                if commenting and liked or self.configuration.comments.enabled_for_liked_media:
-                                    try:
-                                        commented = self.session.media_comment(media_id=media.id, text=random.choice(seq=self.configuration.comments.comments).format(media.user.username))
-                                        print(f'[INFO]: Successfully commented on media: {media.code}' if commented is not None else '[ERROR]: Failed to comment on media.')
-                                        if commented:
-                                            commented_count += 1
-                                    except Exception as error:
-                                        print(f'[ERROR]: {error}.')
-
-                if following: # what is dont_follow_inap_post?
-                    followed = self.configuration.follows.follow(user=int(self.session.user_id_from_username(username=username)))
-                    if followed:
-                        followed_count += 1
-
-        print(f'[INFO]: Commented on {commented_count} media.')
-        print(f'[INFO]: Followed {followed_count} users.')
-        print(f'[INFO]: Liked {liked_count} media.')
-
-
-    def post(self, type: PostType = PostType.Path, **kwargs):
-        match type:
-            case PostType.Path:
-                path = kwargs['path'] if 'path' in kwargs.keys() else None
-                caption = kwargs['caption'] if 'caption' in kwargs.keys() else None
-                usertags = kwargs['usertags'] if 'usertags' in kwargs.keys() else []
-
-                if path is not None and caption is not None:
-                    self.session.photo_upload(path=path, caption=caption, usertags=usertags)
-            case PostType.Pexels:
-                caption = kwargs['caption'] if 'caption' in kwargs.keys() else None
-                query = kwargs['query'] if 'query' in kwargs.keys() else None
-
-                if hasattr(self.configuration, 'pexels_api_key') and caption is not None:
-                    response = get(url=f'https://api.pexels.com/v1/search?query={query}', headers={
-                        'Authorization' : self.configuration.pexels_api_key
-                    })
-
-                    photo = choice(seq=response.json()['photos'])['src']['medium']
-                    if photo is not None:
-                        pexels_path = f'{getcwd()}{sep}pexels.png'
-                        with open(file=pexels_path, mode='wb') as file:
-                            file.write(get(url=photo).content)
-
-                        self.session.photo_upload(path=pexels_path, caption=caption) # type: ignore
-                        remove(path=pexels_path)
-            case PostType.Unsplash:
-                caption = kwargs['caption'] if 'caption' in kwargs.keys() else None
-                query = kwargs['query'] if 'query' in kwargs.keys() else None
-
-                if hasattr(self.configuration, 'unsplash_api_key') and caption is not None:
-                    endpoint = f'https://api.unsplash.com/search/photos?query={query}&client_id={self.configuration.unsplash_api_key}' if query is not None else f'https://api.unsplash.com/photos/random?client_id={self.configuration.unsplash_api_key}'
-
-                    response = get(url=endpoint)
-                    if query is None:
-                        print(response.json())
-                        photo = response.json()['urls']['regular']
+                    if "photos" not in json_data:
+                        self.logger.error(
+                            message="No photos could be found for the entered query."
+                        )
                     else:
-                        photo = choice(seq=response.json()['results'])['urls']['regular']
-                    
-                    if photo is not None:
-                        unsplash_path = f'{getcwd()}{sep}unsplash.png'
-                        with open(file=unsplash_path, mode='wb') as file:
-                            file.write(get(url=photo).content)
+                        photo = json_data["photos"][0]
+                        # id = photo['id'] # save this using persistence
+                        url = photo["src"]["original"]
+                        file_path, _ = urlretrieve(
+                            url=url,
+                            filename=getcwd() + sep + "files" + sep + "image.png",
+                        )
+                        self.session.photo_upload(path=Path(file_path), caption=caption)
 
-                        self.session.photo_upload(path=unsplash_path, caption=caption) # type: ignore
-                        remove(path=unsplash_path)
-            case _:
-                print('[ERROR]: No `type` was provided.')
+            case PostType.UNSPLASH:
+                if any(
+                    key not in ["api_key", "caption", "query"] for key in kwargs.keys()
+                ):
+                    self.logger.error(
+                        message="No api_key, caption or query entered for argument(s) 'api_key', 'caption' or 'query'."
+                    )
+                else:
+                    query = kwargs["query"]
+                    json_data = get(
+                        url=f"https://api.unsplash.com/search/photos?query={query}&page=1&per_page=1",
+                        headers={"Authorization": "Client-ID " + kwargs["api_key"]},
+                    ).json()
+
+                    if "results" not in json_data:
+                        self.logger.error(
+                            message="No photos could be found for the entered query."
+                        )
+                    else:
+                        photo = json_data["results"][0]
+                        # id = photo['id'] # save this using persistence
+                        url = photo["urls"]["regular"]
+                        file_path, _ = urlretrieve(
+                            url=url,
+                            filename=getcwd() + sep + "files" + sep + "image.png",
+                        )
+                        self.session.photo_upload(path=Path(file_path), caption=caption)
+
+    def unfollow(self, amount: int):
+        followers = self.session.user_followers(
+            user_id=str(self.session.user_id), amount=amount
+        )
+        [self.session.user_unfollow(user_id=user_id) for user_id in followers.keys()]
