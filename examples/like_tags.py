@@ -4,4 +4,4 @@ from instapy2.types import LikeType
 session = InstaPy2()
 session.login(username='', password='')
 
-session.like(amount=10, iterable=['christmas'], type=LikeType.Tags)
+session.like(amount=10, iterable=['instagram'], type=LikeType.Tags)
